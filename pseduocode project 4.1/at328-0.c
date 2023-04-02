@@ -35,7 +35,7 @@
 char state;
 char flag_max_plants_reached_flag = '0';
 
-
+// PJ make change
 
 // serial setup functions
 void serial_init ( unsigned short ubrr ) {
