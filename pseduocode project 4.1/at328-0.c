@@ -51,6 +51,7 @@
 // variables to facilitate state transitions and device status
 char state;
 char flag_max_plants_reached_flag = '0';
+char flag_try_adding_new_plant = '0';
 
 // variables to facilitate rotery encoder turns and presses
 int debounce_button = 0;
@@ -64,7 +65,7 @@ volatile int isrs = 0;
 int rotery_state = 0;
 int max_num_options_rotery = 0;
 
-// flag will always be set to 0 since will start with no plants added so this leaves total of 33 bytes per each plant
+// flag will always be set to 0 since will start with no plants added so this leaves total of 36 bytes per each plant
 	//char *plant_names[3] = {"Calendula", "Hibiscus", "Begonia"}; //length of 9
 	//char *water_per_week[3] = {1,3,2}; //length of 1
 	//char *low_temperature_range [3] = {"25", "60","60"}; //length of 2
@@ -79,12 +80,12 @@ int max_num_options_rotery = 0;
 
 // TO DO: remove these plant defines, just to simulate reading from EEPROM
 int num_plants_in_database = 3;
-char *plant1 = "0Calendula12585100200015009999900";
-char *plant2 = "0\0Hibiscus36095200999999999999900";
-char *plant3 = "0\0\0Begonia26075200999000000150000";
+char *plant1 = "0Calendula12585100200015009999900000";
+char *plant2 = "0\0Hibiscus36095200999999999999900000";
+char *plant3 = "0\0\0Begonia26075200999000000150000000";
 int temp_ave, brightness_ave, moisture_ave;
 
-
+char *error_message;
 
 // serial setup functions
 void serial_init ( unsigned short ubrr ) {
@@ -538,6 +539,7 @@ void rank_plants(void){
 
 		range_ave = (high_range_t + low_range_t) /2;
 		if( low_range_t <=temp_ave && temp_ave <= high_range_t ){
+			plant_selected[33] = '0';
 			serial_string(" IN RANGE ");
 			if((range_ave - 5) <=temp_ave && temp_ave <= (range_ave + 5) ){
 				serial_string(" BEST ");
@@ -554,6 +556,7 @@ void rank_plants(void){
 		}else{
 			serial_string(" OUTSIDE RANGE ");
 			score = 0.5;
+			plant_selected[33] = '1';
 		}
 
 		// then calculate moisture values
@@ -585,6 +588,7 @@ void rank_plants(void){
 
 		range_ave = (high_range_t + low_range_t) /2;
 		if( low_range_t <=moisture_ave && moisture_ave <= high_range_t ){
+			plant_selected[34] = '0';
 			serial_string(" IN RANGE ");
 			if((range_ave - 50) <=moisture_ave && moisture_ave <= (range_ave + 50) ){
 				serial_string(" BEST ");
@@ -601,6 +605,7 @@ void rank_plants(void){
 		}else{
 			serial_string(" OUTSIDE RANGE ");
 			score += 0.5;
+			plant_selected[34] = '1';
 		}
 
 		// brightness sensor
@@ -648,6 +653,7 @@ void rank_plants(void){
 
 		range_ave = (high_range_t + low_range_t) /2;
 		if( low_range_t <=brightness_ave && brightness_ave <= high_range_t ){
+			plant_selected[35] = '0';
 			serial_string(" IN RANGE ");
 			if((range_ave - 50) <=brightness_ave && brightness_ave <= (range_ave + 50) ){
 				serial_string(" BEST ");
@@ -664,6 +670,7 @@ void rank_plants(void){
 		}else{
 			serial_string(" OUTSIDE RANGE ");
 			score += 0.25;
+			plant_selected[35] = '1';
 		}
 
 		if(i == 0){
@@ -800,7 +807,6 @@ void calibration_state(void){
 	//poll sensors and create averages
 	// TO DO: poll sensors and add averages
 	// TO DO: add sensor functions and integrate the polling
-	int i = 0;
 
 	poll_temperature();
 	poll_moisture();
@@ -913,6 +919,7 @@ void select_function_state(void){
 	} else if(  rotery_state == 0 && flag_max_plants_reached_flag == '0'){
 		state = RESULTS_STATE;
 	} else if( rotery_state == 0 && flag_max_plants_reached_flag == '1' ){
+		flag_try_adding_new_plant = '1';
 		state = WARNING_STATE;
 	}
 }
@@ -1066,14 +1073,15 @@ void results_state(void){
 	// TO DO: if plant is selected then update the EEPROM, if plant is selected update the select plant flag
 	if(plant_selected == plant1){
 		plant1[0] = '1';
-	}else if(plant_selected = plant2){
+	}else if(plant_selected == plant2){
 		plant2[0] = '1';
-	}else{
+	}else if(plant_selected == plant3) {
 		plant3[0] = '1';
 	}
 	// if all three plants are selected than change the flag to 1 so no more plants can be added
 	if(plant1[0] == '1' & plant2[0] == '1' & plant3[0] == '1'){
 		flag_max_plants_reached_flag = '1';
+		serial_string(" FLAG MAX PLANTS REACHED ");
 	} 
 
 	// TO DO: State transitions listed below
@@ -1098,7 +1106,7 @@ void direction(){
 	if(flag == 0){
 		if (!two && one){
 		old_value = 1;
-		if(rotery_state != (max_num_options_rotery - 1)){
+		if(rotery_state < (max_num_options_rotery - 1)){
 			rotery_state += 1;
 		}else{
 			rotery_state = 0;
@@ -1142,7 +1150,8 @@ void edit_plants_state(void){
 	char removed_all_plants_flag = '0';
 	char  select_back_flag = '0';
 	char flag_plant_removed = '0';
-	max_num_options_rotery = 4;
+	
+	
 
 	DDRB &= ~(1 << PB0);		/* set pin to input */
 	DDRC &= ~(1 << PC2);		/* set pin to input */
@@ -1175,6 +1184,8 @@ void edit_plants_state(void){
     new_value = old_value;
 
 	char *option_selected;
+	char *prev_selected1;
+	char *prev_selected2;
 	char *back = "\0\0\0\0\0\0back";
 	int j = 0;
 	int count = 1;
@@ -1183,24 +1194,29 @@ void edit_plants_state(void){
 	serial_string(" OPTIONS TO REMOVE ");
 	if(plant1[0] == '1'){
 		snprintf(print_count,5,"%d",count);
+		serial_string(" ");
 		serial_string(print_count);
 		for(j=1;j<10;j++){
 				serial_out(plant1[j]);
 		}
 		count += 1;
 	}
+	serial_string(" ");
 
 	if(plant2[0] == '1'){
 		snprintf(print_count,5,"%d",count);
+		serial_string(" ");
 		serial_string(print_count);
 		for(j=1;j<10;j++){
 				serial_out(plant2[j]);
 		}
 		count += 1;
 	}
+	serial_string(" ");
 
 	if(plant3[0] == '1'){
 		snprintf(print_count,5,"%d",count);
+		serial_string(" ");
 		serial_string(print_count);
 		for(j=1;j<10;j++){
 				serial_out(plant3[j]);
@@ -1208,30 +1224,56 @@ void edit_plants_state(void){
 		count += 1;
 	}
 
-	snprintf(print_count,5,"%d",count);
-	serial_string(print_count);
+	serial_string(" ");
 	for(j=1;j<10;j++){
 			serial_out(back[j]);
 	}
 
+	serial_string("COUNT: ");
+	snprintf(print_count,5,"%d",count);
+	serial_string(print_count);
+
+
 	serial_string("\n\n plant selected: ");
-	if(rotery_state == 0){
+	if(rotery_state == 1){
 		option_selected = back;
-	}else if(rotery_state == 1){
-		option_selected = plant1;
-		
+	}else if(rotery_state == 0){
+		if(plant1[0] == '1'){
+			option_selected = plant1;
+			prev_selected1 = plant1;
+		}else if(plant2[0] == '1'){
+			option_selected = plant2;
+			prev_selected1 = plant2;
+		}else{
+			option_selected = plant3;
+			prev_selected1 = plant3;
+		}
 	}else if(rotery_state == 2){
-		option_selected = plant2;
-		
-	}else{
+		if(plant2[0] == '1' & !(prev_selected1 == plant2) ){
+			option_selected = plant2;
+		}else if(plant3[0] == '1'){
+			option_selected = plant3;
+		}				
+	}else if(rotery_state == 3){
 		option_selected = plant3;
 	}
 
 	for(j=1;j<10;j++){
 		serial_out(option_selected[j]);
 	}
+
+	serial_string("max_num_options_rotery preset: ");
+	snprintf(print_count,5,"%d",max_num_options_rotery);
+	serial_string(print_count);
+
+	max_num_options_rotery = count; // the number of options is equal to the number of plants that are available plus one for back
 	
-	while(select_back_flag == '0'){
+	serial_string("max_num_options_rotery postset: ");
+	snprintf(print_count,5,"%d",max_num_options_rotery);
+	serial_string(print_count);
+
+
+	while(select_back_flag != '1' & removed_all_plants_flag != '1'){
 		if((PINB & (1 << PINB0)) == 0 && !debounce_button){
 			serial_string(" OPTION SELECTED ");
 			
@@ -1254,11 +1296,32 @@ void edit_plants_state(void){
 				flag_plant_removed = '1';
 			}
 
+			count = 1;
+			if(plant1[0] == '1'){
+				count += 1;
+			}
+			if(plant2[0] == '1'){
+				count += 1;
+			}
+			if(plant3[0] == '1'){
+				count += 1;
+			}
+
+			max_num_options_rotery = count; //now cycle through less options
+
+			serial_string("max_num_options_rotery update: ");
+			snprintf(print_count,5,"%d",max_num_options_rotery);
+			serial_string(print_count);
 
 			serial_string(" Option Chosen = ");
 			for(j=1;j<10;j++){
 				serial_out(option_selected[j]);
 			}
+
+			if(plant1[0] == '0' & plant2[0] == '0' & plant3[0] == '0'){
+				removed_all_plants_flag = '1';
+			} 
+
 
 
 		}else if((PINB & (1 << PINB0)) == 1){
@@ -1266,15 +1329,27 @@ void edit_plants_state(void){
 		}
 
 		if(changed == '1'){
+
 			serial_string(" option selected: ");
-			if(rotery_state == 0){
+			if(rotery_state == 1){
 				option_selected = back;
-			}else if(rotery_state == 1){
-				option_selected = plant1;
-				
+			}else if(rotery_state == 0){
+				if(plant1[0] == '1'){
+					option_selected = plant1;
+					prev_selected1 = plant1;
+				}else if(plant2[0] == '1'){
+					option_selected = plant2;
+					prev_selected1 = plant2;
+				}else{
+					option_selected = plant3;
+					prev_selected1 = plant3;
+				}
 			}else if(rotery_state == 2){
-				option_selected = plant2;
-				
+				if(plant2[0] == '1' & !(prev_selected1 == plant2) ){
+					option_selected = plant2;
+				}else if(plant3[0] == '1'){
+					option_selected = plant3;
+				}				
 			}else if(rotery_state == 3){
 				option_selected = plant3;
 			}
@@ -1288,17 +1363,15 @@ void edit_plants_state(void){
 
 	
 	// if removed a plant annd used to have maximum plants now reset that flag
-	if(flag_plant_removed == '1' && flag_max_plants_reached_flag == '1'){
+	if((flag_plant_removed == '1') && (flag_max_plants_reached_flag == '1')){
 		flag_max_plants_reached_flag = '0';
 	} 
-	if(plant1[0] == '0' & plant2[0] == '0' & plant3[0] == '0'){
-		removed_all_plants_flag = '1';
-	} 
+	
 
 
 	// TO DO: state transitions listed below
 	// if back button selected: go to select functionality unless removed all of the plants then go to reccomended state 
-	if(select_back_flag == '1' && removed_all_plants_flag){ // make back button selected 0 
+	if((removed_all_plants_flag == '1')){ // make back button selected 0 
 		state = RESULTS_STATE;
 	}else if (select_back_flag == '1' ){
 		state = SELECT_FUNCTION_STATE;
@@ -1309,22 +1382,81 @@ void edit_plants_state(void){
 void monitor_state(void){
 	serial_string(" in monitor state function ");
 
-	char warning_flag, button_pressed_flag = '0';
+	
 
+
+	_delay_ms(5000);
 	//TO DO: set up timer to poll sensors 4 times a day and then update the running averages and flags if watered
 	// update the long term averages once a week? 
 
-	// if there is something that brings plant outside of ranges or needs watering turn on diode
+	char warning_flag = '0';
+	char  back = '0';
+	int int_up_to_1_second = 0;
+	int seconds_count = 0;
 
+	serial_string(" back ");
+	serial_out(back);
+
+	serial_string(" warning flag ");
+	serial_out(warning_flag);
+
+	// if there is something that brings plant outside of ranges or needs watering turn on diode
+	while(back == '0' && warning_flag == '0'){
+		int_up_to_1_second += 1;
+		if(int_up_to_1_second == 10000){
+			serial_string(" 1 second ");
+			seconds_count += 1;
+			int_up_to_1_second = 0;
+		}
+
+
+		if(seconds_count == 30){
+			serial_string(" 30 second ");
+			poll_temperature();
+			poll_moisture();
+			poll_brightness();
+
+			rank_plants();
+
+			if(plant1[0] == '1'){
+				if(plant1[33] == '1' || plant1[34] == '1' || plant1[35] == '1'){
+					warning_flag = '1';
+				}
+			}
+
+			if(plant2[0] == '1'){
+				if(plant2[33] == '1' || plant2[34] == '1' || plant2[35] == '1'){
+					warning_flag = '1';
+				}
+			}
+			
+			if(plant3[0] == '1'){
+				if(plant3[33] == '1' || plant3[34] == '1' || plant3[35] == '1'){
+					warning_flag = '1';
+				}
+			}
+			seconds_count = 0;
+			int_up_to_1_second = 0;
+		}
+		
+		
+		if((PINB & (1 << PINB0))  == 0){
+			serial_string(" BACK SELECTED ");
+			back = '1';
+		}
+
+		
+	}
 	// TO DO: LCD display to display monitoring symbol, back button 
 
 	//TO DO: state transitions listed below
 	// if back button pressed go back to the select functions state
 	// if warning alert triggered go to warning state
 	// prioritize warning alert over back button
+
 	if(warning_flag == '1'){
 		state = WARNING_STATE;
-	} else if(button_pressed_flag == '1'){
+	} else if(back == '1'){
 		state = SELECT_FUNCTION_STATE;
 	}
 }
@@ -1333,16 +1465,64 @@ void warning_state(void){
 	serial_string(" in warning state function ");
 
 	char button_pressed_flag = '0';
+	int j, i;
+	char *plant_selected;
 
 	// TO DO: display the warning depending on the warning given
+	if(flag_try_adding_new_plant == '0'){
+		serial_string("Warning: Please Check the following Plants -  ");
+		
+		for(i=0;i<3;i++){
+			if(i == 0){
+				plant_selected = plant1;
+				serial_string(" plant1 ");
+			}else if(i == 1){
+				plant_selected = plant2;
+				serial_string(" plant2 ");
+			}else{
+				plant_selected = plant3;
+				serial_string(" plant3 ");
+			}
 
+			if(plant_selected[0] == '1'){
+				if(plant_selected[33] == '1' || plant_selected[34] == '1' || plant_selected[35]){
+					for(j=1;j<10;j++){
+						serial_out(plant_selected[j]);
+					}
+					if( plant_selected[33] == '1'){
+						serial_string(" Temperature ");
+					}
+
+					if( plant_selected[34] == '1'){
+						serial_string(" Moisture ");
+					}
+
+					if( plant_selected[35] == '1'){
+						serial_string(" Brightness ");
+					}
+				} 
+			}
+			
+		}
+	}else{
+		serial_string("Warning: Max Plants Reached. Please remove a plant to add a new one");
+	}
+	
+
+	_delay_ms(5000);
+
+	while(button_pressed_flag == '0'){
+		if((PINB & (1 << PINB0)) == 0){
+			serial_string(" BACK SELECTED ");
+			button_pressed_flag = '1';
+		}
+	}
+	flag_try_adding_new_plant = '0';
 	// TO DO: LCD display to display warning message and an ok button
 
 	// state transitions listed below
 	// if okay button pressed go back to the select function state
-	if(button_pressed_flag == '1'){
-		state = SELECT_FUNCTION_STATE;
-	}
+	state = SELECT_FUNCTION_STATE;
 }
 
 int main(void){
@@ -1373,7 +1553,7 @@ int main(void){
 	state = POWER_ON_STATE;
 
 
-	for(i=0; i<10; i++){
+	while(1){
 		switch(state){
 			case POWER_ON_STATE:
 				power_on_state(first_po_flag, num_plants_selected);
