@@ -446,8 +446,13 @@ void poll_brightness(void){
     int num_times = 0;
 
 
+	unsigned char other[10];
+	unsigned char avalid = 0x30;
+	unsigned char buff[4];
+		
 	
     i2c_init(BDIV);             // Initialize the I2C port
+    _delay_ms(3000);  // delay to allow for I2C to be visible on the scope
 	status = i2c_io(MOISTURE_ADDR, adata, 1, NULL, 0, rdata, 1); //bytes, reading id from device
 
     // checks to make sure the ID is correct 
@@ -455,15 +460,21 @@ void poll_brightness(void){
         serial_string("   found");
     }
     status = i2c_io(MOISTURE_ADDR, p_enable, 1, wr_p_enable, 1, check_po, 1); //bytes, powers on device
+    if(check_po[0] == 1){
+        serial_string(" powered on ");
+    }else{
+        serial_string(" powered off ");
+    }
 
 
     status = i2c_io(MOISTURE_ADDR, set_gain_a, 1, set_gain_w, 1, NULL, 0); //bytes, sets params
 
 
-	unsigned char avalid = 0x30;
-	unsigned char buff[4];
+	_delay_ms(3000);
+	
 	status = i2c_io(MOISTURE_ADDR, p_enable, 1, convert_w, 1, check_params, 1); //bytes, set power on and AEN to start conversion
 
+	_delay_ms(3000);
 	while(avalid == 0x30){
 		status = i2c_io(MOISTURE_ADDR, status_a, 1, NULL, 0, read_status, 1); //bytes, check the status of a valid
 		avalid = read_status[0];
@@ -475,20 +486,26 @@ void poll_brightness(void){
 
 	status = i2c_io(MOISTURE_ADDR, p_enable, 1, wr_p_enable, 1, NULL, 0); //bytes, set power on and leave AEN 0 
 
-	serial_string(" Brightness: ");
+	serial_string(" visible light ");
+
 	unsigned int x = buff[1];
-	unsigned char other[10];
+
 	x = x<<8;
 	x = x | buff[0];
 	
 	snprintf(other, 10, "%d", x);
-	serial_string(other);
 	serial_string("\n");
-
+	serial_string(other);
 
     status = i2c_io(MOISTURE_ADDR, set_gain_a, 1, wr_p_disable, 1, NULL, 0); //bytes, powers off device
 
 	// TO DO: update brightness in EEPROM 
+	
+
+	serial_string(" Brightness: ");
+	snprintf(other, 10, "%d", x);
+	serial_string(other);
+	serial_string("\n");
 	brightness_ave = x;
 }
 
@@ -1054,7 +1071,7 @@ void select_function_state(void){
 	}else if(rotery_state == 1){
 		state = EDIT_PLANTS_STATE;
 	} else if(  rotery_state == 0 && flag_max_plants_reached_flag == '0'){
-		state = RESULTS_STATE;
+		state = CALIBRATION_STATE;
 	} else if( rotery_state == 0 && flag_max_plants_reached_flag == '1' ){
 		flag_try_adding_new_plant = '1';
 		state = WARNING_STATE;
@@ -1173,6 +1190,7 @@ void results_state(void){
 
 	uint8_t r_bit, one, two;
 	max_num_options_rotery = 3;
+	rotery_state = 0;
 
 	DDRB &= ~(1 << PB0);		/* set pin to input */
 	DDRC &= ~(1 << PC2);		/* set pin to input */
@@ -1806,7 +1824,7 @@ void edit_plants_state(void){
 	// TO DO: state transitions listed below
 	// if back button selected: go to select functionality unless removed all of the plants then go to reccomended state 
 	if((removed_all_plants_flag == '1')){ // make back button selected 0 
-		state = RESULTS_STATE;
+		state = CALIBRATION_STATE;
 	}else if (select_back_flag == '1' ){
 		state = SELECT_FUNCTION_STATE;
 	}
