@@ -32,7 +32,7 @@
 #define EDIT_PLANTS_STATE '4'
 #define RESULTS_STATE '5'
 #define WARNING_STATE '6'
-#define MONITER_STATE '7'
+#define MONITOR_STATE '7'
 
 // moisture sensor defines
 // Find divisors for the UART0 and I2C baud rates
@@ -91,7 +91,10 @@ char *plant1 = "0Calendula12585100200015000160000000";
 char *plant2 = "0 Hibiscus36095200250010000150000000";
 char *plant3 = "0  Begonia26075200250000000100000000";
 
-int temp_ave, brightness_ave, moisture_ave;
+
+int temp_ave;
+int brightness_ave;
+int moisture_ave;
 
 char *error_message;
 
@@ -263,7 +266,6 @@ void decimal_to_string( int decimal_val){
 	char other[4];
 	snprintf(other, 4, "%d", decimal_val);
 	serial_string(other);
-	
 }
 
 void celcius_to_farenhiet(int i, int d){
@@ -285,6 +287,7 @@ void celcius_to_farenhiet(int i, int d){
 
 	sprintf (str, "%d.%01d\n", int_i_result, int_fract_i_result);
 	serial_string(str);
+	
 
 
 	// TO DO: update value in EEPROM with temp average
@@ -318,7 +321,6 @@ int Receive_data()		/* Receive data */
 {
 	int q,c=0;
 
-	int c1, c2, c3, c4, c5, c6, c7, c8;	
 	for (q=0; q<8; q++)
 	{
 		while((PIND & (1 << PIND2)) == 0);/* check received bit 0 or 1 */
@@ -384,7 +386,7 @@ void power_off(){
 	PORTD &= ~(1 << PD6);		/* set to high pin */
 }
 int read_pin(){
-	int x;
+	unsigned int x;
 
 	DDRC &= ~(1 << PC3);          /* set pin to input */
 	ADMUX |= (1 << REFS0 ); // Set reference to AVCC
@@ -865,32 +867,6 @@ void clear_lcd(void){
     _delay_ms(10);
 }
 
-void next_line(void){
-	char buff[3];
-	char status;
-    buff[0] = 0xFE;
-    buff[1] = 0x45;
-    buff[2] = 0x40;
-
-	if(LCD_position == 0x00){
-		LCD_position = 0x40;
-		buff[2] = 0x40;
-	}else if(LCD_position == 0x40){
-		LCD_position = 0x14;
-		buff[2] = 0x14;
-	} else if (LCD_position == 0x14){
-		LCD_position = 0x54;
-		buff[2] = 0x54;
-	} else if(LCD_position == 0x54){
-		LCD_position = 0x00;
-		buff[2] = 0x00;
-	}
-
-	status = i2c_io(LCD_ADDR, NULL, 0, buff, 3, NULL, 0);
-    _delay_ms(10);
-}
-
-
 void first_line(void){
 	char buff[3];
 	char status;
@@ -969,7 +945,7 @@ void select_function_state(void){
 	third_line();
 	write_line(" 2. Edit Plants");
 	fourth_line();
-	write_line(" 3. Moniter Plants");
+	write_line(" 3. Monitor Plants");
 
 	// rotery encoder to cycle through the options, on screen order will be add new plants, edit plants, then monitor from left to right
 	//TO DO: add rotery encoder selection
@@ -1080,7 +1056,7 @@ void select_function_state(void){
 	
 	// State transitions listed below
 	if(rotery_state ==2){
-		state =  MONITER_STATE;
+		state =  MONITOR_STATE;
 	}else if(rotery_state == 1){
 		state = EDIT_PLANTS_STATE;
 	} else if(  rotery_state == 0 && flag_max_plants_reached_flag == '0'){
@@ -1195,7 +1171,7 @@ void results_state(void){
 	write_char(buff, 1);
 	write_line(" / 10");
 
-	// TO DO: LCD Display options from algorithm ranked, give option to select plant to moniter only if plant is not already being monitered
+	// TO DO: LCD Display options from algorithm ranked, give option to select plant to monitor only if plant is not already being monitored
 	//LCD SCREEN 4
 	
 	// TO DO: rotery encoder to cycle through selecting available plants
@@ -1315,6 +1291,79 @@ void results_state(void){
 		flag_max_plants_reached_flag = '1';
 		serial_string(" FLAG MAX PLANTS REACHED ");
 	} 
+
+	clear_lcd();
+	first_line();
+	char str[7];
+
+
+	for(j=1;j<10;j++){
+		buff[0] = plant_selected[j];
+		write_char(buff,1);
+	}
+
+	second_line();
+	write_line("T: ");
+	for(j=11;j<13;j++){
+		buff[0] = plant_selected[j];
+		write_char(buff,1);
+	}
+	write_line("-");
+	for(j=13;j<15;j++){
+		buff[0] = plant_selected[j];
+		write_char(buff,1);
+	}
+	write_line(" ");
+	snprintf(str, 7, "%d", temp_ave);
+	serial_string(str);
+	write_line(str);
+	serial_string(" ");
+
+	third_line();
+	write_line("M: ");
+	for(j=15;j<18;j++){
+		buff[0] = plant_selected[j];
+		write_char(buff,1);
+	}
+	write_line("-");
+	for(j=18;j<21;j++){
+		buff[0] = plant_selected[j];
+		write_char(buff,1);
+	}
+	write_line(" ");
+	decimal_to_string(moisture_ave);
+	serial_string(" ");
+	snprintf(str, 7, "%d", moisture_ave);
+	serial_string(str);
+	write_line(str);
+	serial_string(" ");
+
+	fourth_line();
+	write_line("B: ");
+	for(j=22;j<26;j++){
+		buff[0] = plant_selected[j];
+		write_char(buff,1);
+	}
+	write_line("-");
+	for(j=27;j<31;j++){
+		buff[0] = plant_selected[j];
+		write_char(buff,1);
+	}
+	write_line(" ");
+	decimal_to_string(brightness_ave);
+	serial_string(" ");
+	snprintf(str, 7, "%d", brightness_ave);
+	serial_string(str);
+	write_line(str);
+	serial_string(" ");
+
+	char back = '0';
+
+	while(back == '0'){
+		if((PINB & (1 << PINB0))  == 0){
+			back = '1';
+		}
+	}
 
 	// TO DO: State transitions listed below
 	// if plant is selected go back to select function state
@@ -2101,7 +2150,7 @@ int main(void){
 			case WARNING_STATE:
 				warning_state();
 				break;
-			case MONITER_STATE:
+			case MONITOR_STATE:
 				monitor_state();
 				break;
 			default:
