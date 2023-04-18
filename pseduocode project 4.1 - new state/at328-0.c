@@ -1280,10 +1280,13 @@ void results_state(void){
 	}
 	// TO DO: if plant is selected then update the EEPROM, if plant is selected update the select plant flag
 	if(plant_selected == plant1){
+		display_selected_plant(1);
 		plant1[0] = '1';
 	}else if(plant_selected == plant2){
+		display_selected_plant(2);
 		plant2[0] = '1';
 	}else if(plant_selected == plant3) {
+		display_selected_plant(3);
 		plant3[0] = '1';
 	}
 	// if all three plants are selected than change the flag to 1 so no more plants can be added
@@ -1292,10 +1295,29 @@ void results_state(void){
 		serial_string(" FLAG MAX PLANTS REACHED ");
 	} 
 
+
+	// TO DO: State transitions listed below
+	// if plant is selected go back to select function state
+	state = SELECT_FUNCTION_STATE;
+
+}
+
+void display_selected_plant(int plant_num){
+	char *plant_selected;
+	int j = 0;
+
+	if(plant_num == 1){
+		plant_selected = plant1;
+	}else if(plant_num == 2){
+		plant_selected = plant2;
+	}else{
+		plant_selected = plant3;
+	}
+	char buff[1];
+	char str[100];
+
 	clear_lcd();
 	first_line();
-	char str[7];
-
 
 	for(j=1;j<10;j++){
 		buff[0] = plant_selected[j];
@@ -1314,8 +1336,7 @@ void results_state(void){
 		write_char(buff,1);
 	}
 	write_line(" ");
-	snprintf(str, 7, "%d", temp_ave);
-	serial_string(str);
+	snprintf(str, 100, "%d", temp_ave);
 	write_line(str);
 	serial_string(" ");
 
@@ -1331,12 +1352,8 @@ void results_state(void){
 		write_char(buff,1);
 	}
 	write_line(" ");
-	decimal_to_string(moisture_ave);
-	serial_string(" ");
-	snprintf(str, 7, "%d", moisture_ave);
-	serial_string(str);
+	snprintf(str, 100, "%d", moisture_ave);
 	write_line(str);
-	serial_string(" ");
 
 	fourth_line();
 	write_line("B: ");
@@ -1350,12 +1367,8 @@ void results_state(void){
 		write_char(buff,1);
 	}
 	write_line(" ");
-	decimal_to_string(brightness_ave);
-	serial_string(" ");
-	snprintf(str, 7, "%d", brightness_ave);
-	serial_string(str);
+	snprintf(str, 100, "%d", brightness_ave);
 	write_line(str);
-	serial_string(" ");
 
 	char back = '0';
 
@@ -1364,11 +1377,6 @@ void results_state(void){
 			back = '1';
 		}
 	}
-
-	// TO DO: State transitions listed below
-	// if plant is selected go back to select function state
-	state = SELECT_FUNCTION_STATE;
-
 }
 
 
