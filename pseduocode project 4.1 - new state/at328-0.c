@@ -36,7 +36,7 @@
 
 // moisture sensor defines
 // Find divisors for the UART0 and I2C baud rates
-#define FOSC 9830400            // Clock frequency = Oscillator freq.
+#define FOSC 7372800            // Clock frequency = Oscillator freq.
 #define BAUD 9600               // UART0 baud rate
 #define MYUBRR FOSC/16/BAUD-1   // Value for UBRR0 register
 #define BDIV (FOSC / 100000 - 16) / 2 + 1    // Puts I2C rate just below 100kHz
@@ -767,7 +767,6 @@ void rank_plants(void){
 	int_i_result = score2;                  // Get the integer (678).
 	fract_i_result = score - int_i_result;      // Get fraction (0.0123).
 	int_fract_i_result = trunc(fract_i_result * 10);  // Turn into integer (123).
-	str[100];
 
 	sprintf (str, "%d.%d\n", int_i_result, int_fract_i_result);
 	
@@ -785,7 +784,6 @@ void rank_plants(void){
 	int_i_result = score3;                  // Get the integer (678).
 	fract_i_result = score - int_i_result;      // Get fraction (0.0123).
 	int_fract_i_result = trunc(fract_i_result * 10);  // Turn into integer (123).
-	str[100];
 
 	sprintf (str, "%d.%01d", int_i_result, int_fract_i_result);
 	serial_out('\n');
@@ -2096,7 +2094,7 @@ int main(void){
 
 	// for testing purposes only
 	// TO DO: end of project remove
-	serial_init(63);
+	serial_init(47);
 	int i = 0;
 
 	// TO DO: LCD Display Boot Up Screen with Name for a set amount of time 

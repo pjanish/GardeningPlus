@@ -22,7 +22,7 @@
 #include <util/delay.h>
 #include <stdio.h>
 
-#define FOSC 9830400            // Clock frequency = Oscillator freq.
+#define FOSC 7372800            // Clock frequency = Oscillator freq.
 #define BAUD 115200               // wifi module baud rate
 #define MYUBRR FOSC/16/BAUD-1   // Value for wifi module buad rate
 
@@ -268,10 +268,15 @@ int main(void)
 	serial_init(MYUBRR); //change to MYUBBR or 4
 	clear_lcd();
 	
-	char * letter_in1[1];
-	char * letter_in2[1];
+	char letter_in1[1];
+	char letter_in2[1];
+	char letter_in3[1];
+	char letter_in4[1];
 	char l1;
 	char l2;
+	char l3;
+	char l4;
+	char l5;
 	//letter_in1[0] = 'a';
 	
 
@@ -280,29 +285,36 @@ int main(void)
 	PORTD |= (1 << PD3);		
 
 	write_line("starting ");
-	_delay_ms(5000);
 	
 	
     
 	while(1){
 		char val = 0x55;
+
 		serial_out('A');
 		serial_out('T');
 		serial_out(0x0d);
-		l1 = (char) serial_in();
-		l2 = (char) serial_in();
+		serial_out(0x0a);
 
-		if(l1 == 'O'){
+		l1 = serial_in();
+		l2 = serial_in();
+		l3 = serial_in();
+		l4 = serial_in();
+
+		if(l3 == 'O'){
 			write_line("O");
 		}
 
+
 		letter_in1[0]= l1;
 		letter_in2[0]= l2;
+		letter_in3[0]= l3;
+		letter_in4[0]= l4;
 
 
-		write_char(letter_in1,1 );
+		write_char(letter_in1,1);
 		write_char(letter_in2,1);
-	    
+
 	}
 
 
