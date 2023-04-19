@@ -261,6 +261,105 @@ char serial_in ()
 	return UDR0 ;
 }
 
+void serial_string( char *string){
+
+	int q = 0;
+	while(string[q] != '\0')
+	{
+		serial_out(string[q]);
+		q++;
+	}
+}
+
+void find_ok(char *at_command){
+
+	int len = strlen(at_command) + 8;
+	char flag_o = '0';
+	char flag_ok = '0';
+	char letter;
+	int j;
+
+	for(j=0;j<len;j++){
+		letter = serial_in();
+		if(letter == 'O'){
+			flag_o = '1';
+		}
+
+		if(flag_o && letter == 'K'){
+			flag_ok = '1';
+			break;
+		}
+
+	}
+
+	if(flag_ok){
+		write_line("OK");
+	}else{
+		write_line("NOT OK");
+	}
+
+
+
+}
+
+void get_ip(void)
+
+{
+  	char ch='0';
+	char IP[11];
+
+	char letter;
+	char flag_first = '0';
+
+	int j = 0;
+	int count = 0;
+
+	write_line(" CIFSR ");
+	serial_string("AT+CIFSR");
+	serial_out(0x0d);
+	serial_out(0x0a);
+
+	for(j=0;j<30;j++){
+		letter = serial_in();
+		if(letter == '\"' && flag_first != '1'){
+			flag_first = '1';
+		}else if(letter == '\"' && flag_first == '1'){
+			break;
+		}else if(flag_first == '1'){
+			IP[count] = letter;
+			count += 1;
+		}
+	}
+
+	write_line(" IP Address: ");
+	serial_string("IP Address:");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("IP Address:");
+
+	write_line(" IP ");
+	for(j=0;j<11;j++){
+		serial_out(IP[j]);
+	}
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("IP Address:");
+
+	write_line(" Port: ");
+	serial_string("Port:");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("Port:");
+
+	write_line(" 80 ");
+	serial_string("80");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("80");
+
+}
 
 
 int main(void)
@@ -268,15 +367,14 @@ int main(void)
 	serial_init(MYUBRR); //change to MYUBBR or 4
 	clear_lcd();
 	
-	char letter_in1[1];
-	char letter_in2[1];
-	char letter_in3[1];
-	char letter_in4[1];
-	char l1;
-	char l2;
-	char l3;
-	char l4;
-	char l5;
+	char letter_in1[50];
+	char letter_in2[100];
+	char letter_in3[100];
+	char letter_in4[100];
+
+	char letter;
+
+	int j = 0;
 	//letter_in1[0] = 'a';
 	
 
@@ -284,37 +382,325 @@ int main(void)
 	DDRD |= (1 << PD3);          //PC2 -> D6
 	PORTD |= (1 << PD3);		
 
-	write_line("starting ");
+	
+
+	write_line("AT ");
+	serial_string("AT");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("AT");
+	_delay_ms(100);
+
+
+	write_line(" AT+CWMODE=3 ");	
+	serial_string("AT+CWMODE=3");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("AT+CWMODE=3");
+	_delay_ms(100);
+
+	write_line(" AT+CWQAP ");	
+	serial_string("AT+CWQAP");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("AT+CWQAP");
+	_delay_ms(100);
+
+
+	write_line(" AT+RST ");	
+	serial_string("AT+RST");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("AT+RST");
+	_delay_ms(5000);
+
+	/*
+	get_ip();
+	_delay_ms(1000);
+
+	
+
+	write_line(" AT+CIPMUX=1 ");
+	serial_string("AT+CIPMUX=1");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("AT+CIPMUX=1");
+	_delay_ms(100);
+
+	write_line(" AT+CIPSERVER=1,80 ");
+	serial_string("AT+CIPSERVER=1,80");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("AT+CIPSERVER=1,80");
+	_delay_ms(100);
+
+	_delay_ms(2000);
+	*/
+
+	write_line("AT+CWJAP");
+	serial_string("AT+CWJAP=\"USC Guest Wireless\",\"\"");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CWJAP=\"USC Guest Wireless\",\"\"");
+	_delay_ms(2000);
+
+	write_line("Check Connect");
+	serial_string("AT+CWJAP?");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+
+	for(j=0;j<50;j++){
+		letter = serial_in();
+		letter_in1[j] = letter;
+	}
+
+	clear_lcd();
+	write_char(letter_in1,50);
+	
+
+
+/*
+	write_line(" AT+CIPSTART ");
+	serial_string("AT+CIPSTART=4,\"TCP\",\"mail.smtp2go.com\",2525");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSTART=4,\"TCP\",\"mail.smtp2go.com\",2525");
+	_delay_ms(2000);
+
+	write_line(" AT+CIPSEND=4,20 ");
+	serial_string("AT+CIPSEND=4,20");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,20");
+	_delay_ms(2000);
+
+	write_line(" EHLO ");
+	serial_string("EHLO 192.168.1.123");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("EHLO 192.168.1.123");
+	_delay_ms(2000);
+
+	clear_lcd();
+
+	write_line(" AT+CIPSEND=4,12 ");
+	serial_string("AT+CIPSEND=4,12");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,12");
+	_delay_ms(2000);
+
+	write_line(" AUTH LOGIN ");
+	serial_string("AUTH LOGIN");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AUTH LOGIN");
+	_delay_ms(2000);
+
+	write_line(" AT+CIPSEND=4,30 ");
+	serial_string("AAT+CIPSEND=4,30");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,30");
+	_delay_ms(2000);
+	
+	write_line(" email ");
+	serial_string("cGphbmlzaEB1c2MuZWR1");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("cGphbmlzaEB1c2MuZWR1");
+	_delay_ms(2000);
+
+	write_line(" AT+CIPSEND=4,18 ");
+	serial_string("AT+CIPSEND=4,18");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,18");
+	_delay_ms(2000);
+
+	write_line(" pass ");
+	serial_string("VGVzdGluZ3Bhc3N3b3JkMTIzIQ==");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("VGVzdGluZ3Bhc3N3b3JkMTIzIQ==");
+	_delay_ms(2000);
+
+	write_line(" AT+CIPSEND=4,34 ");
+	serial_string("AT+CIPSEND=4,34");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,34");
+	_delay_ms(2000);
+
+	write_line(" mail from ");
+	serial_string("MAIL FROM:<pjanish@usc.edu>");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("MAIL FROM:<pjanish@usc.edu>");
+	_delay_ms(2000);
+
+	write_line(" AT+CIPSEND=4,32 ");
+	serial_string("AT+CIPSEND=4,32");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,32");
+	_delay_ms(2000);
+
+	write_line(" rcpt to");
+	serial_string("RCPT To:<prjjanish@gmail.com>");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("RCPT To:<prjjanish@gmail.com>");
+	_delay_ms(2000);
+
+	write_line(" AT+CIPSEND=4,6");
+	serial_string("AT+CIPSEND=4,6");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,6");
+	_delay_ms(2000);
+
+	write_line(" DATA");
+	serial_string("DATA");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("DATA");
+	_delay_ms(2000);
+
+	write_line(" AT+CIPSEND=4,24");
+	serial_string("AT+CIPSEND=4,24");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,24");
+	_delay_ms(2000);
+
+	write_line(" body data ");
+	serial_string("body data");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("body data");
+	_delay_ms(2000);
+
+
+	write_line(" AT+CIPSEND=4,3");
+	serial_string("AT+CIPSEND=4,3");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,3");
+	_delay_ms(2000);
+
+	write_line(" .");
+	serial_string(".");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok(".");
+	_delay_ms(1000);
+
+	write_line(" AT+CIPSEND=4,6");
+	serial_string("AT+CIPSEND=4,6");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=4,6");
+	_delay_ms(2000);
+
+	write_line(" QUIT");
+	serial_string("QUIT");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("QUIT");
+	_delay_ms(2000);
+
+
+	
+*/
+
+
+	/*
+	
+
+	for(j=0;j<80;j++){
+		letter = serial_in();
+		letter_in1[j] = letter;
+	}
+
+	for(j=0;j<80;j++){
+		letter = serial_in();
+		letter_in2[j] = letter;
+	}
+
+	for(j=0;j<80;j++){
+		letter = serial_in();
+		letter_in3[j] = letter;
+	}
+
+	for(j=0;j<80;j++){
+		letter = serial_in();
+		letter_in4[j] = letter;
+	}
+
+	write_char(letter_in1,80);
+	_delay_ms(10000);
+	write_char(letter_in2,80);
+	_delay_ms(10000);
+	write_char(letter_in3,80);
+	_delay_ms(10000);
+	write_char(letter_in4,80);
+	_delay_ms(10000);
+	l1 = serial_in();
+	l2 = serial_in();
+	l3 = serial_in();
+	l4 = serial_in();
+	l5 = serial_in();
+	l6 = serial_in();
+	l7 = serial_in();
+	l8 = serial_in();
+	l9 = (char) serial_in();
+	l10 = (char) serial_in();
+
+	
+
+
+	letter_in1[0]= l1;
+	letter_in2[0]= l2;
+	letter_in3[0]= l3;
+	letter_in4[0]= l4;
+	letter_in5[0]= l5;
+	letter_in6[0]= l6;
+	letter_in7[0]= l7;
+	letter_in8[0]= l8;
+	letter_in9[0]= l9;
+	letter_in10[0]= l10;
+
+	write_line("1");
+	write_char(letter_in1,1);
+	write_line("2");
+	write_char(letter_in2,1);
+	write_line("3");
+	write_char(letter_in3,1);
+	write_line("4");
+	write_char(letter_in4,1);
+	write_line("5");
+	write_char(letter_in5,1);
+	write_line("6");
+	write_char(letter_in6,1);
+	write_line("7");
+	write_char(letter_in7,1);
+	write_line("8");
+	write_char(letter_in8,1);
+	write_line("9");
+	write_char(letter_in9,1);
+	write_line("10");
+	write_char(letter_in10,1);
+	*/
+	
 	
 	
     
 	while(1){
-		char val = 0x55;
+		
+	
 
-		serial_out('A');
-		serial_out('T');
-		serial_out(0x0d);
-		serial_out(0x0a);
-
-		l1 = serial_in();
-		l2 = serial_in();
-		l3 = serial_in();
-		l4 = serial_in();
-
-		if(l3 == 'O'){
-			write_line("O");
-		}
-
-
-		letter_in1[0]= l1;
-		letter_in2[0]= l2;
-		letter_in3[0]= l3;
-		letter_in4[0]= l4;
-
-
-		write_char(letter_in1,1);
-		write_char(letter_in2,1);
-
+		
 	}
 
 
