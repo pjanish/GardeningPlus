@@ -31,6 +31,8 @@
 /* Address of the LCD on the I2C bus */
 #define LCD_ADDR  0x50
 
+char IP[11];
+
 uint8_t i2c_io(uint8_t device_addr, uint8_t *ap, uint16_t an, 
                uint8_t *wp, uint16_t wn, uint8_t *rp, uint16_t rn)
 {
@@ -306,7 +308,7 @@ void get_ip(void)
 
 {
   	char ch='0';
-	char IP[11];
+	char full_IP[55];
 
 	char letter;
 	char flag_first = '0';
@@ -314,13 +316,15 @@ void get_ip(void)
 	int j = 0;
 	int count = 0;
 
+	clear_lcd();
 	write_line(" CIFSR ");
 	serial_string("AT+CIFSR");
 	serial_out(0x0d);
 	serial_out(0x0a);
 
-	for(j=0;j<30;j++){
+	for(j=0;j<55;j++){
 		letter = serial_in();
+		full_IP[j] = letter;
 		if(letter == '\"' && flag_first != '1'){
 			flag_first = '1';
 		}else if(letter == '\"' && flag_first == '1'){
@@ -330,6 +334,7 @@ void get_ip(void)
 			count += 1;
 		}
 	}
+	write_char(IP,11);
 
 	write_line(" IP Address: ");
 	serial_string("IP Address:");
@@ -368,9 +373,9 @@ int main(void)
 	clear_lcd();
 	
 	char letter_in1[50];
-	char letter_in2[100];
-	char letter_in3[100];
-	char letter_in4[100];
+	char letter_in2[62];
+	char letter_in3[30];
+	char letter_in4[22];
 
 	char letter;
 
@@ -415,17 +420,11 @@ int main(void)
 	_delay_ms(5000);
 
 	/*
-	get_ip();
-	_delay_ms(1000);
+	
 
 	
 
-	write_line(" AT+CIPMUX=1 ");
-	serial_string("AT+CIPMUX=1");
-	serial_out(0x0d);
-	serial_out(0x0a);
-	find_ok("AT+CIPMUX=1");
-	_delay_ms(100);
+	
 
 	write_line(" AT+CIPSERVER=1,80 ");
 	serial_string("AT+CIPSERVER=1,80");
@@ -456,60 +455,269 @@ int main(void)
 
 	clear_lcd();
 	write_char(letter_in1,50);
+	_delay_ms(5000);
+
 	
 
+	get_ip();
 
-/*
+	_delay_ms(5000);
+
+	write_line(" AT+CIPMUX=1 ");
+	serial_string("AT+CIPMUX=1");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	find_ok("AT+CIPMUX=1");
+	_delay_ms(100);
+
+
 	write_line(" AT+CIPSTART ");
-	serial_string("AT+CIPSTART=4,\"TCP\",\"mail.smtp2go.com\",2525");
+	serial_string("AT+CIPSTART=0,\"TCP\",\"mail.smtp2go.com\",2525");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AT+CIPSTART=4,\"TCP\",\"mail.smtp2go.com\",2525");
-	_delay_ms(2000);
+	
+	for(j=0;j<62;j++){
+		letter = serial_in();
+		letter_in2[j] = letter;
+	}
 
-	write_line(" AT+CIPSEND=4,20 ");
-	serial_string("AT+CIPSEND=4,20");
-	serial_out(0x0d);
-	serial_out(0x0a);	
-	find_ok("AT+CIPSEND=4,20");
-	_delay_ms(2000);
+	clear_lcd();
+	write_char(letter_in2,62);
 
-	write_line(" EHLO ");
-	serial_string("EHLO 192.168.1.123");
+	write_line(" AT+CIPSEND=0,18 ");
+	serial_string("AT+CIPSEND=0,18");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("EHLO 192.168.1.123");
+	find_ok("AT+CIPSEND=0,18");
 	_delay_ms(2000);
 
 	clear_lcd();
-
-	write_line(" AT+CIPSEND=4,12 ");
-	serial_string("AT+CIPSEND=4,12");
+	write_line(" EHLO ");
+	write_char(IP,11);
+	serial_string("EHLO ");
+	for(j=0;j<11;j++){
+		serial_out(IP[j]);
+	}
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AT+CIPSEND=4,12");
-	_delay_ms(2000);
 
+	for(j=0;j<30;j++){
+		letter = serial_in();
+		letter_in3[j] = letter;
+	}
+
+	
+	write_char(letter_in3,30);
+
+
+	_delay_ms(2000);
+	clear_lcd();
+
+	write_line(" AT+CIPSEND=0,12 ");
+	serial_string("AT+CIPSEND=0,12");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,12");
+
+	
 	write_line(" AUTH LOGIN ");
 	serial_string("AUTH LOGIN");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AUTH LOGIN");
-	_delay_ms(2000);
 
-	write_line(" AT+CIPSEND=4,30 ");
-	serial_string("AAT+CIPSEND=4,30");
+	for(j=0;j<22;j++){
+		letter = serial_in();
+		letter_in4[j] = letter;
+	}
+
+	
+	write_char(letter_in4,22);
+
+	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(" AT+CIPSEND=0,22 ");
+	serial_string("AAT+CIPSEND=0,22");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AT+CIPSEND=4,30");
+	find_ok("AT+CIPSEND=0,22");
 	_delay_ms(2000);
 	
 	write_line(" email ");
 	serial_string("cGphbmlzaEB1c2MuZWR1");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("cGphbmlzaEB1c2MuZWR1");
+	for(j=0;j<22;j++){
+		letter = serial_in();
+		letter_in4[j] = letter;
+	}
+	for(j=0;j<30;j++){
+		letter = serial_in();
+		letter_in1[j] = letter;
+	}
+
+	
+	write_char(letter_in1,30);
+
+	
+	write_char(letter_in4,22);
+	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(" AT+CIPSEND=0,26 ");
+	serial_string("AAT+CIPSEND=0,26");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,26");
 	_delay_ms(2000);
+	
+	write_line(" password ");
+	//serial_string("Z2FyZGVuaW5ncGx1czQ1OQ0K");
+	serial_string("R2FyZGVuaW5ncGx1czIwMjM=");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	for(j=0;j<20;j++){
+		letter = serial_in();
+		letter_in1[j] = letter;
+	}
+	for(j=0;j<50;j++){
+		letter = serial_in();
+		letter_in1[j] = letter;
+	}
+
+	
+	write_char(letter_in1,50);
+
+	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(" AT+CIPSEND=0,29 ");
+	serial_string("AAT+CIPSEND=0,29");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,29");
+	_delay_ms(2000);
+	
+	write_line(" send from ");
+	serial_string("MAIL FROM:<pjanish@usc.edu>");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	for(j=0;j<20;j++){
+		letter = serial_in();
+		letter_in1[j] = letter;
+	}
+	
+	write_char(letter_in1,20);
+
+	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(" AT+CIPSEND=0,27 ");
+	serial_string("AAT+CIPSEND=0,27");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,27");
+	_delay_ms(2000);
+	
+	write_line(" send to ");
+	serial_string("RCPT TO:<pjanish@usc.edu>");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	for(j=0;j<20;j++){
+		letter = serial_in();
+		letter_in1[j] = letter;
+	}
+	for(j=0;j<40;j++){
+		letter = serial_in();
+		letter_in1[j] = letter;
+	}
+
+	
+	write_char(letter_in1,40);
+	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(" AT+CIPSEND=0,6");
+	serial_string("AT+CIPSEND=0,6");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,6");
+	_delay_ms(2000);
+
+	write_line(" DATA");
+	serial_string("DATA");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	_delay_ms(2000);
+
+	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(" AT+CIPSEND=0,19");
+	serial_string("AT+CIPSEND=0,19");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,19");
+	_delay_ms(2000);
+
+	write_line(" Subject: hi bitch");
+	serial_string("Subject: hi bitch");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(" AT+CIPSEND=0,3");
+	serial_string("AT+CIPSEND=0,3");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,3");
+	_delay_ms(2000);
+
+	write_line(" . ");
+	serial_string(".");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(" AT+CIPSEND=0,6");
+	serial_string("AT+CIPSEND=0,6");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,6");
+	_delay_ms(2000);
+
+	write_line(" QUIT ");
+	serial_string("QUIT");
+	serial_out(0x0d);
+	serial_out(0x0a);
+	for(j=0;j<30;j++){
+		letter = serial_in();
+		letter_in2[j] = letter;
+	}
+	for(j=0;j<50;j++){
+		letter = serial_in();
+		letter_in2[j] = letter;
+	}
+	write_char(letter_in2,50);
+	_delay_ms(5000);
+	
+
+
+
+/*
+	
+
+	
+
+	
+
+	clear_lcd();
+
+	
+
+	
 
 	write_line(" AT+CIPSEND=4,18 ");
 	serial_string("AT+CIPSEND=4,18");
