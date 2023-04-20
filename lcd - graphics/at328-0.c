@@ -49,7 +49,7 @@ UCSR0C = (3 << UCSZ00 ); // Set for async . operation , no parity ,
 }
 
 
-void serial_string( char *string){
+void serial_string_special( char *string){
 
 	int q = 0;
 	while(string[q] != '\0')
@@ -99,13 +99,13 @@ int main(void) {
     i2c_init(BDIV);             // Initialize the I2C port
 
     while(1){
-        serial_string("data incoming");
+        serial_string_special("data incoming");
         _delay_ms(3000);
 
 
         char buff[1];
         char dummy_read[1];
-        serial_string(" write data ");
+        serial_string_special(" write data ");
         status = i2c_io(0x71, NULL, 0, NULL, 0, buff, 1); // write command
         serial_out(buff[0]);
         _delay_ms(1000);

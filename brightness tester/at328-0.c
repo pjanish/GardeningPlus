@@ -49,7 +49,7 @@ UCSR0C = (3 << UCSZ00 ); // Set for async . operation , no parity ,
 }
 
 
-void serial_string( char *string){
+void serial_string_special( char *string){
 
 	int q = 0;
 	while(string[q] != '\0')
@@ -102,13 +102,13 @@ int main(void) {
 
     // checks to make sure the ID is correct 
     if(rdata[0] == 0x50){
-        serial_string("   found");
+        serial_string_special("   found");
     }
     status = i2c_io(MOISTURE_ADDR, p_enable, 1, wr_p_enable, 1, check_po, 1); //bytes, powers on device
     if(check_po[0] == 1){
-        serial_string(" powered on ");
+        serial_string_special(" powered on ");
     }else{
-        serial_string(" powered off ");
+        serial_string_special(" powered off ");
     }
 
 
@@ -116,7 +116,7 @@ int main(void) {
 
 
     while(1){
-        serial_string(" incoming data array ");
+        serial_string_special(" incoming data array ");
         _delay_ms(3000);
         unsigned char avalid = 0x30;
         unsigned char buff[4];
@@ -134,25 +134,25 @@ int main(void) {
 
         status = i2c_io(MOISTURE_ADDR, p_enable, 1, wr_p_enable, 1, NULL, 0); //bytes, set power on and leave AEN 0 
 
-        serial_string(" visible light ");
+        serial_string_special(" visible light ");
         unsigned int x = buff[1];
         unsigned char other[10];
         x = x<<8;
         x = x | buff[0];
         
         snprintf(other, 10, "%d", x);
-        serial_string("\n");
-        serial_string(other);
+        serial_string_special("\n");
+        serial_string_special(other);
 
-        serial_string(" infared light ");
+        serial_string_special(" infared light ");
         x = buff[3];
         other[10];
         x = x<<8;
         x = x | buff[2];
         
         snprintf(other, 10, "%d", x);
-        serial_string("\n");
-        serial_string(other);
+        serial_string_special("\n");
+        serial_string_special(other);
 
     }
     status = i2c_io(MOISTURE_ADDR, set_gain_a, 1, wr_p_disable, 1, NULL, 0); //bytes, powers off device

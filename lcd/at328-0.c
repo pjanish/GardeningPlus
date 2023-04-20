@@ -49,7 +49,7 @@ UCSR0C = (3 << UCSZ00 ); // Set for async . operation , no parity ,
 }
 
 
-void serial_string( char *string){
+void serial_string_special( char *string){
 
 	int q = 0;
 	while(string[q] != '\0')
@@ -99,18 +99,15 @@ int main(void) {
     i2c_init(BDIV);             // Initialize the I2C port
     _delay_ms(3000);  // delay to allow for I2C to be visible on the scope
 
+    char buff[1];
+    buff[0] = 'A';
 
 
     char *tester = "something";
-    char buff[3];
-    buff[0] = 0xFE;
-    buff[1] = 0x45;
-    buff[2] = 0x40;
-
+    
 
     
-    status = i2c_io(LCD_ADDR, NULL, 0, buff, 3, NULL, 0);
-    _delay_ms(10);
+    status = i2c_io(LCD_ADDR, NULL, 0, tester, strlen(tester), NULL, 0);
     status = i2c_io(LCD_ADDR, NULL, 0, tester, strlen(tester), NULL, 0); 
 
 }

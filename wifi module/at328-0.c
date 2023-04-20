@@ -263,7 +263,7 @@ char serial_in ()
 	return UDR0 ;
 }
 
-void serial_string( char *string){
+void serial_string_special( char *string){
 
 	int q = 0;
 	while(string[q] != '\0')
@@ -318,7 +318,7 @@ void get_ip(void)
 
 	clear_lcd();
 	write_line(" CIFSR ");
-	serial_string("AT+CIFSR");
+	serial_string_special("AT+CIFSR");
 	serial_out(0x0d);
 	serial_out(0x0a);
 
@@ -337,7 +337,7 @@ void get_ip(void)
 	write_char(IP,11);
 
 	write_line(" IP Address: ");
-	serial_string("IP Address:");
+	serial_string_special("IP Address:");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	find_ok("IP Address:");
@@ -351,7 +351,7 @@ void get_ip(void)
 	find_ok("IP Address:");
 
 	write_line(" Port: ");
-	serial_string("Port:");
+	serial_string_special("Port:");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	serial_out(0x0d);
@@ -359,7 +359,7 @@ void get_ip(void)
 	find_ok("Port:");
 
 	write_line(" 80 ");
-	serial_string("80");
+	serial_string_special("80");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	find_ok("80");
@@ -390,7 +390,7 @@ int main(void)
 	
 
 	write_line("AT ");
-	serial_string("AT");
+	serial_string_special("AT");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	find_ok("AT");
@@ -398,14 +398,14 @@ int main(void)
 
 
 	write_line(" AT+CWMODE=3 ");	
-	serial_string("AT+CWMODE=3");
+	serial_string_special("AT+CWMODE=3");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	find_ok("AT+CWMODE=3");
 	_delay_ms(100);
 
 	write_line(" AT+CWQAP ");	
-	serial_string("AT+CWQAP");
+	serial_string_special("AT+CWQAP");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	find_ok("AT+CWQAP");
@@ -413,7 +413,7 @@ int main(void)
 
 
 	write_line(" AT+RST ");	
-	serial_string("AT+RST");
+	serial_string_special("AT+RST");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	find_ok("AT+RST");
@@ -437,14 +437,14 @@ int main(void)
 	*/
 
 	write_line("AT+CWJAP");
-	serial_string("AT+CWJAP=\"USC Guest Wireless\",\"\"");
+	serial_string_special("AT+CWJAP=\"USC Guest Wireless\",\"\"");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CWJAP=\"USC Guest Wireless\",\"\"");
 	_delay_ms(2000);
 
 	write_line("Check Connect");
-	serial_string("AT+CWJAP?");
+	serial_string_special("AT+CWJAP?");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 
@@ -464,7 +464,7 @@ int main(void)
 	_delay_ms(5000);
 
 	write_line(" AT+CIPMUX=1 ");
-	serial_string("AT+CIPMUX=1");
+	serial_string_special("AT+CIPMUX=1");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	find_ok("AT+CIPMUX=1");
@@ -472,7 +472,7 @@ int main(void)
 
 
 	write_line(" AT+CIPSTART ");
-	serial_string("AT+CIPSTART=0,\"TCP\",\"mail.smtp2go.com\",2525");
+	serial_string_special("AT+CIPSTART=0,\"TCP\",\"mail.smtp2go.com\",2525");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	
@@ -485,7 +485,7 @@ int main(void)
 	write_char(letter_in2,62);
 
 	write_line(" AT+CIPSEND=0,18 ");
-	serial_string("AT+CIPSEND=0,18");
+	serial_string_special("AT+CIPSEND=0,18");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,18");
@@ -494,7 +494,7 @@ int main(void)
 	clear_lcd();
 	write_line(" EHLO ");
 	write_char(IP,11);
-	serial_string("EHLO ");
+	serial_string_special("EHLO ");
 	for(j=0;j<11;j++){
 		serial_out(IP[j]);
 	}
@@ -514,14 +514,14 @@ int main(void)
 	clear_lcd();
 
 	write_line(" AT+CIPSEND=0,12 ");
-	serial_string("AT+CIPSEND=0,12");
+	serial_string_special("AT+CIPSEND=0,12");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,12");
 
 	
 	write_line(" AUTH LOGIN ");
-	serial_string("AUTH LOGIN");
+	serial_string_special("AUTH LOGIN");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 
@@ -537,14 +537,14 @@ int main(void)
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,22 ");
-	serial_string("AAT+CIPSEND=0,22");
+	serial_string_special("AAT+CIPSEND=0,22");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,22");
 	_delay_ms(2000);
 	
 	write_line(" email ");
-	serial_string("cGphbmlzaEB1c2MuZWR1");
+	serial_string_special("cGphbmlzaEB1c2MuZWR1");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	for(j=0;j<22;j++){
@@ -565,7 +565,7 @@ int main(void)
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,26 ");
-	serial_string("AAT+CIPSEND=0,26");
+	serial_string_special("AAT+CIPSEND=0,26");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,26");
@@ -573,7 +573,7 @@ int main(void)
 	
 	write_line(" password ");
 	//serial_string("Z2FyZGVuaW5ncGx1czQ1OQ0K");
-	serial_string("R2FyZGVuaW5ncGx1czIwMjM=");
+	serial_string_special("R2FyZGVuaW5ncGx1czIwMjM=");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	for(j=0;j<20;j++){
@@ -592,14 +592,14 @@ int main(void)
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,29 ");
-	serial_string("AAT+CIPSEND=0,29");
+	serial_string_special("AAT+CIPSEND=0,29");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,29");
 	_delay_ms(2000);
 	
 	write_line(" send from ");
-	serial_string("MAIL FROM:<pjanish@usc.edu>");
+	serial_string_special("MAIL FROM:<pjanish@usc.edu>");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	for(j=0;j<20;j++){
@@ -613,14 +613,14 @@ int main(void)
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,27 ");
-	serial_string("AAT+CIPSEND=0,27");
+	serial_string_special("AAT+CIPSEND=0,27");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,27");
 	_delay_ms(2000);
 	
 	write_line(" send to ");
-	serial_string("RCPT TO:<pjanish@usc.edu>");
+	serial_string_special("RCPT TO:<pjanish@usc.edu>");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	for(j=0;j<20;j++){
@@ -638,14 +638,14 @@ int main(void)
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,6");
-	serial_string("AT+CIPSEND=0,6");
+	serial_string_special("AT+CIPSEND=0,6");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,6");
 	_delay_ms(2000);
 
 	write_line(" DATA");
-	serial_string("DATA");
+	serial_string_special("DATA");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	_delay_ms(2000);
@@ -654,42 +654,42 @@ int main(void)
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,19");
-	serial_string("AT+CIPSEND=0,19");
+	serial_string_special("AT+CIPSEND=0,19");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,19");
 	_delay_ms(2000);
 
 	write_line(" Subject: hi bitch");
-	serial_string("Subject: hi bitch");
+	serial_string_special("Subject: hi bitch");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	_delay_ms(5000);
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,3");
-	serial_string("AT+CIPSEND=0,3");
+	serial_string_special("AT+CIPSEND=0,3");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,3");
 	_delay_ms(2000);
 
 	write_line(" . ");
-	serial_string(".");
+	serial_string_special(".");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	_delay_ms(5000);
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,6");
-	serial_string("AT+CIPSEND=0,6");
+	serial_string_special("AT+CIPSEND=0,6");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,6");
 	_delay_ms(2000);
 
 	write_line(" QUIT ");
-	serial_string("QUIT");
+	serial_string_special("QUIT");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	for(j=0;j<30;j++){

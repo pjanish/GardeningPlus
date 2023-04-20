@@ -31,7 +31,7 @@ UCSR0C = (3 << UCSZ00 ); // Set for async . operation , no parity ,
 }
 
 
-void serial_string( char *string){
+void serial_string_special( char *string){
 
 	int q = 0;
 	while(string[q] != '\0')
@@ -94,7 +94,7 @@ int read_pin(){
 void decimal_to_string( int decimal_val){
 	char other[4];
 	snprintf(other, 4, "%d", decimal_val);
-	serial_string(other);
+	serial_string_special(other);
 	
 }
 

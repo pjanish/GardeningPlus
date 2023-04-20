@@ -34,7 +34,7 @@ UCSR0C = (3 << UCSZ00 ); // Set for async . operation , no parity ,
 }
 
 
-void serial_string( char *string){
+void serial_string_special( char *string){
 
 	int q = 0;
 	while(string[q] != '\0')
@@ -102,7 +102,7 @@ int Receive_data()		/* Receive data */
 void decimal_to_string( int decimal_val){
 	char other[4];
 	snprintf(other, 4, "%d", decimal_val);
-	serial_string(other);
+	serial_string_special(other);
 	
 }
 
@@ -143,7 +143,7 @@ void create_plant_database(void){
 	char *plant3 = "0\0\0Begonia260752009990000001500";
 
 	for(i=0;i<num_plants;i++){
-		serial_string(" new plant: ");
+		serial_string_special(" new plant: ");
 		if(i==0){
 			plant_selected = plant1;
 		}else if(i == 1){
@@ -209,9 +209,9 @@ int main(void){
 
 
 	//eeprom_write_byte((void *) 271, '1' );
-	serial_string(" Plant 1: ");
+	serial_string_special(" Plant 1: ");
 	
-	serial_string("Flag: ");
+	serial_string_special("Flag: ");
 	flag = eeprom_read_byte((void *) 271 );
 	serial_out(flag);
 	
@@ -231,32 +231,32 @@ int main(void){
 
 	sei();                  // Enable interrupts
 
-	serial_string("begin loop");
+	serial_string_special("begin loop");
 	// Determine the intial state
     r_bit = PINC;
     one = r_bit & (1 << PC1);
     two = r_bit & (1 << PC2);
 
 
-	serial_string("initial state: ");
+	serial_string_special("initial state: ");
     if (!two && !one){
 	old_value = 0;
-	serial_string(" 0 ");}
+	serial_string_special(" 0 ");}
     else if (!two && one){
 	old_value = 1;
-	serial_string(" 1 ");}
+	serial_string_special(" 1 ");}
     else if (two && !one){
 	old_value = 2;
-	serial_string(" 2 ");}
+	serial_string_special(" 2 ");}
     else{
 	old_value = 3;
-	serial_string(" 3 ");}
+	serial_string_special(" 3 ");}
 
     new_value = old_value;
 	while(1){
 		_delay_us(10000);
 		if((PINB & (1 << PINB0)) == 0 && !debounce_button){
-			serial_string(" push button! ");
+			serial_string_special(" push button! ");
 			debounce_button = 1;
 		}else if((PINB & (1 << PINB0)) == 1){
 			debounce_button = 0;
@@ -286,12 +286,12 @@ void direction(){
 	if(flag == 0){
 		if (!two && one){
 		old_value = 1;
-		serial_string(" 1 ");
+		serial_string_special(" 1 ");
 		flag = 1;
 		prev_was_three = 0;}
 		else if (two && !one){
 		old_value = 2;
-		serial_string(" 2 ");
+		serial_string_special(" 2 ");
 		flag = 1;
 		prev_was_three = 0;}
 		else if( !two && !one){

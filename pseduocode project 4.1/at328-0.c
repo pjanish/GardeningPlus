@@ -104,7 +104,7 @@ UCSR0C = (3 << UCSZ00 ); // Set for async . operation , no parity ,
 // one stop bit , 8 data bits
 }
 
-void serial_string( char *string){
+void serial_string_special( char *string){
 
 	int q = 0;
 	while(string[q] != '\0')
@@ -262,7 +262,7 @@ void i2c_init(uint8_t bdiv)
 void decimal_to_string( int decimal_val){
 	char other[4];
 	snprintf(other, 4, "%d", decimal_val);
-	serial_string(other);
+	serial_string_special(other);
 	
 }
 
@@ -284,7 +284,7 @@ void celcius_to_farenhiet(int i, int d){
 	int int_fract_i_result = trunc(fract_i_result * 10);  // Turn into integer (123).
 
 	sprintf (str, "%d.%01d\n", int_i_result, int_fract_i_result);
-	serial_string(str);
+	serial_string_special(str);
 
 
 	// TO DO: update value in EEPROM with temp average
@@ -353,7 +353,7 @@ void poll_temperature(void){
 
 	// values are only valid if CS == count
 	if(CS == count){
-		serial_string("Temperature: ");
+		serial_string_special("Temperature: ");
 		celcius_to_farenhiet(I_Temp, D_Temp);
 	}
 
@@ -408,7 +408,7 @@ void poll_moisture(void){
 	set_up();
 	power_on();
 	moisture_value = read_pin();
-	serial_string("Moisture: ");
+	serial_string_special("Moisture: ");
 	decimal_to_string(moisture_value);
 	power_off();
 
@@ -458,13 +458,13 @@ void poll_brightness(void){
 
     // checks to make sure the ID is correct 
     if(rdata[0] == 0x50){
-        serial_string("   found");
+        serial_string_special("   found");
     }
     status = i2c_io(MOISTURE_ADDR, p_enable, 1, wr_p_enable, 1, check_po, 1); //bytes, powers on device
     if(check_po[0] == 1){
-        serial_string(" powered on ");
+        serial_string_special(" powered on ");
     }else{
-        serial_string(" powered off ");
+        serial_string_special(" powered off ");
     }
 
 
@@ -487,7 +487,7 @@ void poll_brightness(void){
 
 	status = i2c_io(MOISTURE_ADDR, p_enable, 1, wr_p_enable, 1, NULL, 0); //bytes, set power on and leave AEN 0 
 
-	serial_string(" visible light ");
+	serial_string_special(" visible light ");
 
 	unsigned int x = buff[1];
 
@@ -495,18 +495,18 @@ void poll_brightness(void){
 	x = x | buff[0];
 	
 	snprintf(other, 10, "%d", x);
-	serial_string("\n");
-	serial_string(other);
+	serial_string_special("\n");
+	serial_string_special(other);
 
     status = i2c_io(MOISTURE_ADDR, set_gain_a, 1, wr_p_disable, 1, NULL, 0); //bytes, powers off device
 
 	// TO DO: update brightness in EEPROM 
 	
 
-	serial_string(" Brightness: ");
+	serial_string_special(" Brightness: ");
 	snprintf(other, 10, "%d", x);
-	serial_string(other);
-	serial_string("\n");
+	serial_string_special(other);
+	serial_string_special("\n");
 	brightness_ave = x;
 }
 
@@ -523,33 +523,33 @@ void rank_plants(void){
 	for(i=0;i<3;i++){
 		if(i == 0){
 			plant_selected = plant1;
-			serial_string(" plant1 ");
+			serial_string_special(" plant1 ");
 		}else if(i == 1){
 			plant_selected = plant2;
-			serial_string(" plant2 ");
+			serial_string_special(" plant2 ");
 		}else{
 			plant_selected = plant3;
-			serial_string(" plant3 ");
+			serial_string_special(" plant3 ");
 		}
 
 		// first calculate the temperature correctness
 
 		// low range temperature values
-		serial_string(" TEMP ");
-		serial_string("low range: ");
+		serial_string_special(" TEMP ");
+		serial_string_special("low range: ");
 		low_range_t = ((int)(plant_selected[11] - '0')) * 10;
 		low_range_t += (int)(plant_selected[12] - '0');
 
 
 		snprintf(tester, 10,"%d", low_range_t);
-		serial_string(tester);
+		serial_string_special(tester);
 		serial_out(' ');
 		serial_out(plant_selected[11]);
 		serial_out(plant_selected[12]);
 		
 
 		// high range temperature values
-		serial_string("high range: ");
+		serial_string_special("high range: ");
 		serial_out(plant_selected[13] );
 		serial_out(plant_selected[14] );
 		high_range_t = (( unsigned int)(plant_selected[13] - '0')) * 10;
@@ -558,21 +558,21 @@ void rank_plants(void){
 		range_ave = (high_range_t + low_range_t) /2;
 		if( low_range_t <=temp_ave && temp_ave <= high_range_t ){
 			plant_selected[33] = '0';
-			serial_string(" IN RANGE ");
+			serial_string_special(" IN RANGE ");
 			if((range_ave - 5) <=temp_ave && temp_ave <= (range_ave + 5) ){
-				serial_string(" BEST ");
+				serial_string_special(" BEST ");
 				score = 4;
 				
 			}else if((range_ave - 10) <=temp_ave && temp_ave <= (range_ave + 10)){
-				serial_string(" SECOND BEST");
+				serial_string_special(" SECOND BEST");
 				score = 3.5;
 
 			}else{
-				serial_string(" THIRD BEST ");
+				serial_string_special(" THIRD BEST ");
 				score = 3;
 			}
 		}else{
-			serial_string(" OUTSIDE RANGE ");
+			serial_string_special(" OUTSIDE RANGE ");
 			score = 0.5;
 			if( low_range_t > temp_ave){
 				plant_selected[33] = '1';
@@ -584,15 +584,15 @@ void rank_plants(void){
 		// then calculate moisture values
 
 		// low range temperature values
-		serial_string(" MOISTURE ");
-		serial_string("low range: ");
+		serial_string_special(" MOISTURE ");
+		serial_string_special("low range: ");
 		low_range_t = ((unsigned int)(plant_selected[15] - '0')) * 100;
 		low_range_t += ((unsigned int)(plant_selected[16] - '0')) * 10;
 		low_range_t += (unsigned int)(plant_selected[17] - '0');
 
 
 		snprintf(tester, 10,"%d", low_range_t);
-		serial_string(tester);
+		serial_string_special(tester);
 		serial_out(' ');
 		serial_out(plant_selected[15]);
 		serial_out(plant_selected[16]);
@@ -600,7 +600,7 @@ void rank_plants(void){
 		
 
 		// high range moisture values
-		serial_string(" high range: ");
+		serial_string_special(" high range: ");
 		serial_out(plant_selected[18] );
 		serial_out(plant_selected[19] );
 		serial_out(plant_selected[20] );
@@ -611,21 +611,21 @@ void rank_plants(void){
 		range_ave = (high_range_t + low_range_t) /2;
 		if( low_range_t <=moisture_ave && moisture_ave <= high_range_t ){
 			plant_selected[34] = '0';
-			serial_string(" IN RANGE ");
+			serial_string_special(" IN RANGE ");
 			if((range_ave - 50) <=moisture_ave && moisture_ave <= (range_ave + 50) ){
-				serial_string(" BEST ");
+				serial_string_special(" BEST ");
 				score += 4;
 				
 			}else if((range_ave - 150) <=moisture_ave && moisture_ave <= (range_ave + 150)){
-				serial_string(" SECOND BEST");
+				serial_string_special(" SECOND BEST");
 				score += 3.5;
 
 			}else{
-				serial_string(" THIRD BEST ");
+				serial_string_special(" THIRD BEST ");
 				score += 3;
 			}
 		}else{
-			serial_string(" OUTSIDE RANGE ");
+			serial_string_special(" OUTSIDE RANGE ");
 			score += 0.5;
 			if( low_range_t > moisture_ave){
 				plant_selected[34] = '1';
@@ -637,8 +637,8 @@ void rank_plants(void){
 		// brightness sensor
 
 		// low range temperature values
-		serial_string(" BRIGHTNESS ");
-		serial_string("low range: ");
+		serial_string_special(" BRIGHTNESS ");
+		serial_string_special("low range: ");
 		low_range_t = ((unsigned int)(plant_selected[21] - '0')) * 10000;
 		low_range_t += ((unsigned int)(plant_selected[22] - '0')) * 1000;
 		low_range_t += (unsigned int)(plant_selected[23] - '0')* 100;
@@ -647,7 +647,7 @@ void rank_plants(void){
 
 
 		snprintf(tester, 10,"%d", low_range_t);
-		serial_string(tester);
+		serial_string_special(tester);
 		serial_out(' ');
 		serial_out(plant_selected[21]);
 		serial_out(plant_selected[22]);
@@ -657,7 +657,7 @@ void rank_plants(void){
 		
 
 		// high range temperature values
-		serial_string(" high range: ");
+		serial_string_special(" high range: ");
 
 		
 
@@ -674,27 +674,27 @@ void rank_plants(void){
 		high_range_t += (unsigned int)(plant_selected[30] - '0');
 
 		snprintf(tester, 10,"%u", high_range_t);
-		serial_string(tester);
+		serial_string_special(tester);
 		serial_out(' ');
 
 		range_ave = (high_range_t + low_range_t) /2;
 		if( low_range_t <=brightness_ave && brightness_ave <= high_range_t ){
 			plant_selected[35] = '0';
-			serial_string(" IN RANGE ");
+			serial_string_special(" IN RANGE ");
 			if((range_ave - 50) <=brightness_ave && brightness_ave <= (range_ave + 50) ){
-				serial_string(" BEST ");
+				serial_string_special(" BEST ");
 				score += 2;
 				
 			}else if((range_ave - 150) <=brightness_ave && brightness_ave <= (range_ave + 150)){
-				serial_string(" SECOND BEST");
+				serial_string_special(" SECOND BEST");
 				score += 1.5;
 
 			}else{
-				serial_string(" THIRD BEST ");
+				serial_string_special(" THIRD BEST ");
 				score += 1;
 			}
 		}else{
-			serial_string(" OUTSIDE RANGE ");
+			serial_string_special(" OUTSIDE RANGE ");
 			score += 0.25;
 			if( low_range_t > brightness_ave){
 				plant_selected[35] = '1';
@@ -752,12 +752,12 @@ void rank_plants(void){
 	sprintf (str, "%d.%01d\n", int_i_result, int_fract_i_result);
 	
 
-	serial_string("plant 1: ");
+	serial_string_special("plant 1: ");
 	for(i=1; i<10; i++){
 		serial_out(plant1[i]);
 	}
 	serial_out(' ');
-	serial_string(str);
+	serial_string_special(str);
 	serial_out(' ');
 	serial_out(rank1);
 	serial_out(' ');
@@ -770,12 +770,12 @@ void rank_plants(void){
 	sprintf (str, "%d.%d\n", int_i_result, int_fract_i_result);
 	
 
-	serial_string("plant 2: ");
+	serial_string_special("plant 2: ");
 	for(i=1; i<10; i++){
 		serial_out(plant2[i]);
 	}
 	serial_out(' ');
-	serial_string(str);
+	serial_string_special(str);
 	serial_out(' ');
 	serial_out(rank2);
 	serial_out(' ');
@@ -788,12 +788,12 @@ void rank_plants(void){
 	sprintf (str, "%d.%01d", int_i_result, int_fract_i_result);
 	serial_out('\n');
 
-	serial_string("plant 3: ");
+	serial_string_special("plant 3: ");
 	for(i=1; i<10; i++){
 		serial_out(plant3[i]);
 	}
 	serial_out(' ');
-	serial_string(str);
+	serial_string_special(str);
 	serial_out(' ');
 	serial_out(rank3);
 	serial_out(' ');
@@ -812,7 +812,7 @@ void rank_plants(void){
 
 // state functions
 void power_on_state(char first_po_flag, char num_plants_selected){
-	serial_string(" in power on state function ");
+	serial_string_special(" in power on state function ");
 
 	if(first_po_flag == '1'){
 		state = CALIBRATION_STATE;
@@ -827,7 +827,7 @@ void power_on_state(char first_po_flag, char num_plants_selected){
 }
 
 void calibration_state(void){
-	serial_string(" in calibration state function ");
+	serial_string_special(" in calibration state function ");
 	char *hashes = "######";
 	char *loading = " Capturing Data... ";
 	clear_lcd();
@@ -957,7 +957,7 @@ void write_char(char *tester, int len){
 }
 
 void select_function_state(void){
-	serial_string(" in select function state function ");
+	serial_string_special(" in select function state function ");
 
 	char *display = "Select Function:";
 	clear_lcd();
@@ -1014,24 +1014,24 @@ void select_function_state(void){
 	
 
 
-	serial_string(" function selected: ");
+	serial_string_special(" function selected: ");
 	if(rotery_state == 0){
-		serial_string(" add new plant ");
+		serial_string_special(" add new plant ");
 		second_line();
 		write_line("#");
 	}else if(rotery_state == 1){
-		serial_string(" edit current plants ");
+		serial_string_special(" edit current plants ");
 		third_line();
 		write_line("#");
 	}else{
-		serial_string(" monitor current plants ");
+		serial_string_special(" monitor current plants ");
 		fourth_line();
 		write_line("#");
 	}
 	
 	while(select_function_flag == '0'){
 		if((PINB & (1 << PINB0)) == 0 && !debounce_button){
-			serial_string(" FUNCTION SELECTED ");
+			serial_string_special(" FUNCTION SELECTED ");
 			select_function_flag = '1';
 			debounce_button = 1;
 		}else if((PINB & (1 << PINB0)) == 1){
@@ -1039,9 +1039,9 @@ void select_function_state(void){
 		}
 
 		if(changed == '1'){
-			serial_string(" function selected: ");
+			serial_string_special(" function selected: ");
 			if(rotery_state == 0){
-				serial_string(" add new plant ");
+				serial_string_special(" add new plant ");
 				second_line();
 				write_line("#");
 				third_line();
@@ -1049,7 +1049,7 @@ void select_function_state(void){
 				fourth_line();
 				write_line(" ");
 			}else if(rotery_state == 1){
-				serial_string(" edit current plants ");
+				serial_string_special(" edit current plants ");
 				second_line();
 				write_line(" ");
 				third_line();
@@ -1057,7 +1057,7 @@ void select_function_state(void){
 				fourth_line();
 				write_line(" ");
 			}else{
-				serial_string(" monitor current plants ");
+				serial_string_special(" monitor current plants ");
 				second_line();
 				write_line(" ");
 				third_line();
@@ -1069,13 +1069,13 @@ void select_function_state(void){
 		}
 	}
 
-	serial_string(" Function Chosen = ");
+	serial_string_special(" Function Chosen = ");
 	if(rotery_state == 0){
-		serial_string(" add new plant ");
+		serial_string_special(" add new plant ");
 	}else if(rotery_state == 1){
-		serial_string(" edit current plants ");
+		serial_string_special(" edit current plants ");
 	}else{
-		serial_string(" monitor current plants ");
+		serial_string_special(" monitor current plants ");
 	}
 	
 	// State transitions listed below
@@ -1094,7 +1094,7 @@ void select_function_state(void){
 void results_state(void){
 	state = SELECT_FUNCTION_STATE;
 
-	serial_string(" in results state function ");
+	serial_string_special(" in results state function ");
 	int score1, score2, score3 = 0;
 	char temp[5];
 	int i,j = 0;
@@ -1105,12 +1105,12 @@ void results_state(void){
 	write_line(display);
 
 	// algorithm taking in current plant averages if first time callibrated use that data else use long term averages
-	serial_string(" scores 1: ");
+	serial_string_special(" scores 1: ");
 	serial_out(plant1[32]);
 	rank_plants();
 	serial_out(plant1[32]);
 
-	serial_string("\n\nPLANT RANKING: 1. ");
+	serial_string_special("\n\nPLANT RANKING: 1. ");
 	char *plant_selected1;
 	if(plant1[31] == '1'){
 		plant_selected1 = plant1;
@@ -1128,9 +1128,9 @@ void results_state(void){
 		buff[0]  = plant_selected1[j];
 		write_char(buff, 1);
 	}
-	serial_string("  ");
+	serial_string_special("  ");
 	serial_out(plant_selected1[32]);
-	serial_string(" / 10");
+	serial_string_special(" / 10");
 
 	
 	write_line(" ");
@@ -1139,7 +1139,7 @@ void results_state(void){
 	write_line(" / 10");
 
 	char *plant_selected2;
-	serial_string("\n\n 2. ");
+	serial_string_special("\n\n 2. ");
 	if(plant1[31] == '2'){
 		plant_selected2 = plant1;
 	}else if (plant2[31] == '2'){
@@ -1157,9 +1157,9 @@ void results_state(void){
 		buff[0]  = plant_selected2[j];
 		write_char(buff, 1);
 	}
-	serial_string("  ");
+	serial_string_special("  ");
 	serial_out(plant_selected2[32]);
-	serial_string(" / 10");
+	serial_string_special(" / 10");
 
 	write_line(" ");
 	buff[0]  = plant_selected2[32];
@@ -1172,7 +1172,7 @@ void results_state(void){
 	write_line("3. ");
 
 	char *plant_selected3;
-	serial_string("\n\n 3. ");
+	serial_string_special("\n\n 3. ");
 	if(plant1[31] == '3'){
 		plant_selected3 = plant1;
 	}else if (plant2[31] == '3'){
@@ -1186,9 +1186,9 @@ void results_state(void){
 		buff[0]  = plant_selected3[j];
 		write_char(buff, 1);
 	}
-	serial_string("  ");
+	serial_string_special("  ");
 	serial_out(plant_selected3[32]);
-	serial_string(" / 10");
+	serial_string_special(" / 10");
 
 	write_line(" ");
 	buff[0]  = plant_selected3[32];
@@ -1235,7 +1235,7 @@ void results_state(void){
 
 	char *plant_selected;
 
-	serial_string(" plant selected: ");
+	serial_string_special(" plant selected: ");
 	if(rotery_state == 0){
 		plant_selected = plant_selected1;
 		second_line();
@@ -1256,7 +1256,7 @@ void results_state(void){
 	
 	while(select_plant_flag == '0'){
 		if((PINB & (1 << PINB0)) == 0 && !debounce_button){
-			serial_string(" PLANT SELECTED ");
+			serial_string_special(" PLANT SELECTED ");
 			select_plant_flag = '1';
 			debounce_button = 1;
 		}else if((PINB & (1 << PINB0)) == 1){
@@ -1264,7 +1264,7 @@ void results_state(void){
 		}
 
 		if(changed == '1'){
-			serial_string(" plant selected: ");
+			serial_string_special(" plant selected: ");
 			if(rotery_state == 0){
 				plant_selected = plant_selected1;
 				second_line();
@@ -1298,7 +1298,7 @@ void results_state(void){
 		}
 	}
 
-	serial_string(" Plant Chosen = ");
+	serial_string_special(" Plant Chosen = ");
 	for(j=1;j<10;j++){
 		serial_out(plant_selected[j]);
 	}
@@ -1313,7 +1313,7 @@ void results_state(void){
 	// if all three plants are selected than change the flag to 1 so no more plants can be added
 	if(plant1[0] == '1' & plant2[0] == '1' & plant3[0] == '1'){
 		flag_max_plants_reached_flag = '1';
-		serial_string(" FLAG MAX PLANTS REACHED ");
+		serial_string_special(" FLAG MAX PLANTS REACHED ");
 	} 
 
 	// TO DO: State transitions listed below
@@ -1368,7 +1368,7 @@ void direction(){
 
 
 void edit_plants_state(void){
-	serial_string(" in edit plants state function ");
+	serial_string_special(" in edit plants state function ");
 
 
 	// TO DO: go into EEPROM and view which plants have been selected
@@ -1426,11 +1426,11 @@ void edit_plants_state(void){
 	char print_count[5];
 	char flag_second = '0';
 
-	serial_string(" OPTIONS TO REMOVE ");
+	serial_string_special(" OPTIONS TO REMOVE ");
 	if(plant1[0] == '1'){
 		snprintf(print_count,5,"%d",count);
-		serial_string(" ");
-		serial_string(print_count);
+		serial_string_special(" ");
+		serial_string_special(print_count);
 		for(j=1;j<10;j++){
 				serial_out(plant1[j]);
 		}
@@ -1441,12 +1441,12 @@ void edit_plants_state(void){
 			write_char(buff, 1);
 		}
 	}
-	serial_string(" ");
+	serial_string_special(" ");
 
 	if(plant2[0] == '1'){
 		snprintf(print_count,5,"%d",count);
-		serial_string(" ");
-		serial_string(print_count);
+		serial_string_special(" ");
+		serial_string_special(print_count);
 		for(j=1;j<10;j++){
 				serial_out(plant2[j]);
 		}
@@ -1461,12 +1461,12 @@ void edit_plants_state(void){
 
 		count += 1;
 	}
-	serial_string(" ");
+	serial_string_special(" ");
 
 	if(plant3[0] == '1'){
 		snprintf(print_count,5,"%d",count);
-		serial_string(" ");
-		serial_string(print_count);
+		serial_string_special(" ");
+		serial_string_special(print_count);
 		for(j=1;j<10;j++){
 				serial_out(plant3[j]);
 		}
@@ -1483,7 +1483,7 @@ void edit_plants_state(void){
 		count += 1;
 	}
 
-	serial_string(" ");
+	serial_string_special(" ");
 	if(count == 2){
 		second_line();
 	} else if (count == 3){
@@ -1496,12 +1496,12 @@ void edit_plants_state(void){
 			serial_out(back[j]);
 	}
 
-	serial_string("COUNT: ");
+	serial_string_special("COUNT: ");
 	snprintf(print_count,5,"%d",count);
-	serial_string(print_count);
+	serial_string_special(print_count);
 
 
-	serial_string("\n\n plant selected: ");
+	serial_string_special("\n\n plant selected: ");
 	if(rotery_state == 0){
 		option_selected = back;
 	}else if(rotery_state == 1){
@@ -1529,15 +1529,15 @@ void edit_plants_state(void){
 		serial_out(option_selected[j]);
 	}
 
-	serial_string("max_num_options_rotery preset: ");
+	serial_string_special("max_num_options_rotery preset: ");
 	snprintf(print_count,5,"%d",max_num_options_rotery);
-	serial_string(print_count);
+	serial_string_special(print_count);
 
 	max_num_options_rotery = count; // the number of options is equal to the number of plants that are available plus one for back
 	
-	serial_string("max_num_options_rotery postset: ");
+	serial_string_special("max_num_options_rotery postset: ");
 	snprintf(print_count,5,"%d",max_num_options_rotery);
-	serial_string(print_count);
+	serial_string_special(print_count);
 
 	if(rotery_state == 0){
 		if(count == 2){
@@ -1617,11 +1617,11 @@ void edit_plants_state(void){
 
 	while(select_back_flag != '1' & removed_all_plants_flag != '1'){
 		if((PINB & (1 << PINB0)) == 0 && !debounce_button){
-			serial_string(" OPTION SELECTED ");
+			serial_string_special(" OPTION SELECTED ");
 			
 			debounce_button = 1;
 			// TO DO: if plant is selected then update the EEPROM, if plant is selected update the select plant flag
-			serial_string("  ");
+			serial_string_special("  ");
 			for(j=1;j<10;j++){
 				serial_out(option_selected[j]);
 			}
@@ -1651,11 +1651,11 @@ void edit_plants_state(void){
 
 			max_num_options_rotery = count; //now cycle through less options
 
-			serial_string("max_num_options_rotery update: ");
+			serial_string_special("max_num_options_rotery update: ");
 			snprintf(print_count,5,"%d",max_num_options_rotery);
-			serial_string(print_count);
+			serial_string_special(print_count);
 
-			serial_string(" Option Chosen = ");
+			serial_string_special(" Option Chosen = ");
 			for(j=1;j<10;j++){
 				serial_out(option_selected[j]);
 			}
@@ -1669,8 +1669,8 @@ void edit_plants_state(void){
 				if(plant1[0] == '1'){
 					flag_second = '1';
 					snprintf(print_count,5,"%d",count);
-					serial_string(" ");
-					serial_string(print_count);
+					serial_string_special(" ");
+					serial_string_special(print_count);
 					for(j=1;j<10;j++){
 							serial_out(plant1[j]);
 					}
@@ -1681,12 +1681,12 @@ void edit_plants_state(void){
 						write_char(buff, 1);
 					}
 				}
-				serial_string(" ");
+				serial_string_special(" ");
 
 				if(plant2[0] == '1'){
 					snprintf(print_count,5,"%d",count);
-					serial_string(" ");
-					serial_string(print_count);
+					serial_string_special(" ");
+					serial_string_special(print_count);
 					for(j=1;j<10;j++){
 							serial_out(plant2[j]);
 					}
@@ -1700,12 +1700,12 @@ void edit_plants_state(void){
 					}
 
 				}
-				serial_string(" ");
+				serial_string_special(" ");
 
 				if(plant3[0] == '1'){
 					snprintf(print_count,5,"%d",count);
-					serial_string(" ");
-					serial_string(print_count);
+					serial_string_special(" ");
+					serial_string_special(print_count);
 					for(j=1;j<10;j++){
 							serial_out(plant3[j]);
 					}
@@ -1721,7 +1721,7 @@ void edit_plants_state(void){
 					}
 				}
 
-				serial_string(" ");
+				serial_string_special(" ");
 				if(count == 2){
 					second_line();
 				} else if (count == 3){
@@ -1742,7 +1742,7 @@ void edit_plants_state(void){
 		}
 
 		if(changed == '1'){
-			serial_string(" option selected: ");
+			serial_string_special(" option selected: ");
 			if(rotery_state == 0){
 				if(count == 2){
 					first_line();
@@ -1845,7 +1845,7 @@ void edit_plants_state(void){
 
 
 void monitor_state(void){
-	serial_string(" in monitor state function ");
+	serial_string_special(" in monitor state function ");
 
 	clear_lcd();
 	second_line();
@@ -1860,24 +1860,24 @@ void monitor_state(void){
 	int int_up_to_1_second = 0;
 	int seconds_count = 0;
 
-	serial_string(" back ");
+	serial_string_special(" back ");
 	serial_out(back);
 
-	serial_string(" warning flag ");
+	serial_string_special(" warning flag ");
 	serial_out(warning_flag);
 
 	// if there is something that brings plant outside of ranges or needs watering turn on diode
 	while(back == '0' && warning_flag == '0'){
 		int_up_to_1_second += 1;
 		if(int_up_to_1_second == 10000){
-			serial_string(" 1 second ");
+			serial_string_special(" 1 second ");
 			seconds_count += 1;
 			int_up_to_1_second = 0;
 		}
 
 
 		if(seconds_count == 30){
-			serial_string(" 30 second ");
+			serial_string_special(" 30 second ");
 			poll_temperature();
 			poll_moisture();
 			poll_brightness();
@@ -1907,7 +1907,7 @@ void monitor_state(void){
 		
 		
 		if((PINB & (1 << PINB0))  == 0){
-			serial_string(" BACK SELECTED ");
+			serial_string_special(" BACK SELECTED ");
 			back = '1';
 		}
 
@@ -1928,7 +1928,7 @@ void monitor_state(void){
 }
 
 void warning_state(void){
-	serial_string(" in warning state function ");
+	serial_string_special(" in warning state function ");
 
 	char button_pressed_flag = '0';
 	int j, i;
@@ -1938,21 +1938,21 @@ void warning_state(void){
 
 	// TO DO: display the warning depending on the warning given
 	if(flag_try_adding_new_plant == '0'){
-		serial_string("Warning: Please Check the following Plants -  ");
+		serial_string_special("Warning: Please Check the following Plants -  ");
 		clear_lcd();
 		write_line("WARNING Check Plants");
 		
 		for(i=0;i<3;i++){
 			if(i == 0){
 				plant_selected = plant1;
-				serial_string(" plant1 ");
+				serial_string_special(" plant1 ");
 			}else if(i == 1){
 				plant_selected = plant2;
-				serial_string(" plant2 ");
+				serial_string_special(" plant2 ");
 				
 			}else{
 				plant_selected = plant3;
-				serial_string(" plant3 ");
+				serial_string_special(" plant3 ");
 			}
 
 			if(plant_selected[0] == '1'){
@@ -1975,7 +1975,7 @@ void warning_state(void){
 					write_line(" ");
 
 					if( plant_selected[33] != '0'){
-						serial_string(" Temperature ");
+						serial_string_special(" Temperature ");
 						if(plant_selected[33] == '1'){
 							write_line("I");
 						}else{
@@ -1985,7 +1985,7 @@ void warning_state(void){
 					}
 
 					if( plant_selected[34] != '0'){
-						serial_string(" Moisture ");
+						serial_string_special(" Moisture ");
 						if(plant_selected[34] == '1'){
 							write_line("I");
 						}else{
@@ -1995,7 +1995,7 @@ void warning_state(void){
 					}
 
 					if( plant_selected[35] != '0'){
-						serial_string(" Brightness ");
+						serial_string_special(" Brightness ");
 						if(plant_selected[35] == '1'){
 							write_line("I");
 						}else{
@@ -2009,7 +2009,7 @@ void warning_state(void){
 			
 		}
 	}else{
-		serial_string("Warning: Max Plants Reached. Please remove a plant to add a new one");
+		serial_string_special("Warning: Max Plants Reached. Please remove a plant to add a new one");
 		clear_lcd();
 		write_line("     WARNING     ");
 		second_line();
@@ -2023,7 +2023,7 @@ void warning_state(void){
 
 	while(button_pressed_flag == '0'){
 		if((PINB & (1 << PINB0)) == 0){
-			serial_string(" BACK SELECTED ");
+			serial_string_special(" BACK SELECTED ");
 			button_pressed_flag = '1';
 		}
 	}
@@ -2105,7 +2105,7 @@ int main(void){
 				monitor_state();
 				break;
 			default:
-				serial_string(" not in state ");
+				serial_string_special(" not in state ");
 		}
 	}
 	
