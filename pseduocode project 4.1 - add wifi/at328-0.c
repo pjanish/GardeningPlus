@@ -831,8 +831,8 @@ void get_ip(void)
 	int j = 0;
 	int count = 0;
 
-	clear_lcd();
-	write_line(" CIFSR ");
+	//clear_lcd();
+	//write_line(" CIFSR ");
 	serial_string("AT+CIFSR");
 	serial_out(0x0d);
 	serial_out(0x0a);
@@ -849,113 +849,125 @@ void get_ip(void)
 			count += 1;
 		}
 	}
-	write_char(IP,11);
+	//write_char(IP,11);
 
-	write_line(" IP Address: ");
+	//write_line(" IP Address: ");
 	serial_string("IP Address:");
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("IP Address:");
+	//find_ok("IP Address:");
+	_delay_ms(500);
 
-	write_line(" IP ");
+	//write_line(" IP ");
 	for(j=0;j<11;j++){
 		serial_out(IP[j]);
 	}
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("IP Address:");
+	//find_ok("IP Address:");
+	_delay_ms(500);
 
-	write_line(" Port: ");
+	//write_line(" Port: ");
 	serial_string("Port:");
 	serial_out(0x0d);
 	serial_out(0x0a);
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("Port:");
+	//find_ok("Port:");
+	_delay_ms(500);
 
-	write_line(" 80 ");
+	//write_line(" 80 ");
 	serial_string("80");
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("80");
+	//find_ok("80");
+	_delay_ms(500);	
 
 }
 
 
 
 void wifi_init(void){
+
 	clear_lcd();
 	
-
+	/*
 	char letter_in1[50];
 	char letter_in2[62];
 	char letter_in3[30];
 	char letter_in4[22];
 
 	char letter;
+	*/
+
 
 
 	int j = 0;
 	
-
 	
+
 	DDRD |= (1 << PD3);          //PC2 -> D6
 	PORTD |= (1 << PD3);		
 
 	
 	serial_init(MYUBRR); //change to MYUBBR or 4
-	write_line("AT ");
+
+	//write_line("AT ");
 	serial_string("AT");
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("AT");
+	//find_ok("AT");
 	_delay_ms(100);
 
 
-	write_line(" AT+CWMODE=3 ");	
+	//write_line(" AT+CWMODE=3 ");	
 	serial_string("AT+CWMODE=3");
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("AT+CWMODE=3");
+	//find_ok("AT+CWMODE=3");
 	_delay_ms(100);
 
 	
-	write_line(" AT+CWQAP ");	
+	//write_line(" AT+CWQAP ");	
 	serial_string("AT+CWQAP");
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("AT+CWQAP");
+	//find_ok("AT+CWQAP");
 	_delay_ms(100);
 
 
-	write_line(" AT+RST ");	
+	//write_line(" AT+RST ");	
 	serial_string("AT+RST");
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("AT+RST");
+	//find_ok("AT+RST");
 	_delay_ms(5000);
 
 
-	write_line("AT+CWJAP");
+	//write_line("AT+CWJAP");
 	serial_string("AT+CWJAP=\"USC Guest Wireless\",\"\"");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AT+CWJAP=\"USC Guest Wireless\",\"\"");
+	//find_ok("AT+CWJAP=\"USC Guest Wireless\",\"\"");
 	_delay_ms(2000);
 
-	write_line("Check Connect");
+	clear_lcd();
 	serial_string("AT+CWJAP?");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 
-	
+	write_line("Wifi Connected");
+	/*
 	for(j=0;j<50;j++){
 		letter = serial_in();
 		letter_in1[j] = letter;
 	}
 
-	clear_lcd();
+	
 	write_char(letter_in1,50);
+	*/
+	
+
 	_delay_ms(5000);
 
 	
@@ -964,19 +976,20 @@ void wifi_init(void){
 
 	_delay_ms(5000);
 
-	write_line(" AT+CIPMUX=1 ");
+	//write_line(" AT+CIPMUX=1 ");
 	serial_string("AT+CIPMUX=1");
 	serial_out(0x0d);
 	serial_out(0x0a);
-	find_ok("AT+CIPMUX=1");
-	_delay_ms(100);
+	//find_ok("AT+CIPMUX=1");
+	_delay_ms(500);
 
 
-	write_line(" AT+CIPSTART ");
+	//write_line(" AT+CIPSTART ");
 	serial_string("AT+CIPSTART=0,\"TCP\",\"mail.smtp2go.com\",2525");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	
+	/*
 	for(j=0;j<62;j++){
 		letter = serial_in();
 		letter_in2[j] = letter;
@@ -984,24 +997,27 @@ void wifi_init(void){
 
 	clear_lcd();
 	write_char(letter_in2,62);
+	*/
 
-	write_line(" AT+CIPSEND=0,18 ");
+	_delay_ms(1000);
+
+	//write_line(" AT+CIPSEND=0,18 ");
 	serial_string("AT+CIPSEND=0,18");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AT+CIPSEND=0,18");
+	//find_ok("AT+CIPSEND=0,18");
 	_delay_ms(2000);
 
-	clear_lcd();
-	write_line(" EHLO ");
-	write_char(IP,11);
+	//clear_lcd();
+	//write_line(" EHLO ");
+	//write_char(IP,11);
 	serial_string("EHLO ");
 	for(j=0;j<11;j++){
 		serial_out(IP[j]);
 	}
 	serial_out(0x0d);
 	serial_out(0x0a);	
-
+	/*
 	for(j=0;j<30;j++){
 		letter = serial_in();
 		letter_in3[j] = letter;
@@ -1009,23 +1025,27 @@ void wifi_init(void){
 
 	
 	write_char(letter_in3,30);
+	*/
+
+
 
 
 	_delay_ms(2000);
-	clear_lcd();
+	//clear_lcd();
 
-	write_line(" AT+CIPSEND=0,12 ");
+	//write_line(" AT+CIPSEND=0,12 ");
 	serial_string("AT+CIPSEND=0,12");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AT+CIPSEND=0,12");
+	//find_ok("AT+CIPSEND=0,12");
+	_delay_ms(500);
 
 	
-	write_line(" AUTH LOGIN ");
+	//write_line(" AUTH LOGIN ");
 	serial_string("AUTH LOGIN");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-
+	/*
 	for(j=0;j<22;j++){
 		letter = serial_in();
 		letter_in4[j] = letter;
@@ -1033,21 +1053,25 @@ void wifi_init(void){
 
 	
 	write_char(letter_in4,22);
+	*/
+
 
 	_delay_ms(5000);
 
-	clear_lcd();
-	write_line(" AT+CIPSEND=0,22 ");
-	serial_string("AAT+CIPSEND=0,22");
+	//clear_lcd();
+	//write_line(" AT+CIPSEND=0,22 ");
+	serial_string("AT+CIPSEND=0,22");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AT+CIPSEND=0,22");
+	//find_ok("AT+CIPSEND=0,22");
 	_delay_ms(2000);
 	
-	write_line(" email ");
+	//write_line(" email ");
 	serial_string("cGphbmlzaEB1c2MuZWR1");
 	serial_out(0x0d);
 	serial_out(0x0a);	
+
+	/*
 	for(j=0;j<22;j++){
 		letter = serial_in();
 		letter_in4[j] = letter;
@@ -1057,26 +1081,29 @@ void wifi_init(void){
 		letter_in1[j] = letter;
 	}
 
-	
 	write_char(letter_in1,30);
 
 	
 	write_char(letter_in4,22);
+	*/
+
+
 	_delay_ms(5000);
 
-	clear_lcd();
-	write_line(" AT+CIPSEND=0,26 ");
-	serial_string("AAT+CIPSEND=0,26");
+	//clear_lcd();
+	//write_line(" AT+CIPSEND=0,26 ");
+	serial_string("AT+CIPSEND=0,26");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	find_ok("AT+CIPSEND=0,26");
+	//find_ok("AT+CIPSEND=0,26");
 	_delay_ms(2000);
 	
-	write_line(" password ");
-	//serial_string("Z2FyZGVuaW5ncGx1czQ1OQ0K");
+	//write_line(" password ");
 	serial_string("R2FyZGVuaW5ncGx1czIwMjM=");
 	serial_out(0x0d);
 	serial_out(0x0a);	
+
+	/*
 	for(j=0;j<20;j++){
 		letter = serial_in();
 		letter_in1[j] = letter;
@@ -1085,9 +1112,12 @@ void wifi_init(void){
 		letter = serial_in();
 		letter_in1[j] = letter;
 	}
-
-	
 	write_char(letter_in1,50);
+	*/
+
+
+	third_line();
+	write_line("Email Login Success");
 
 	_delay_ms(5000);
 	
@@ -1096,7 +1126,6 @@ void wifi_init(void){
 
 
 void start_email(void){
-	clear_lcd();
 	
 
 	char letter_in1[50];
@@ -1119,18 +1148,20 @@ void start_email(void){
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,29");
-	_delay_ms(2000);
+	_delay_ms(5000);
 	
 	write_line(" send from ");
 	serial_string("MAIL FROM:<pjanish@usc.edu>");
 	serial_out(0x0d);
 	serial_out(0x0a);	
+
 	for(j=0;j<20;j++){
 		letter = serial_in();
 		letter_in1[j] = letter;
 	}
 	
 	write_char(letter_in1,20);
+
 
 	_delay_ms(5000);
 
@@ -1142,12 +1173,13 @@ void start_email(void){
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,27");
-	_delay_ms(2000);
+	_delay_ms(5000);
 	
 	write_line(" send to ");
 	serial_string("RCPT TO:<pjanish@usc.edu>");
 	serial_out(0x0d);
-	serial_out(0x0a);	
+	serial_out(0x0a);
+
 	for(j=0;j<20;j++){
 		letter = serial_in();
 		letter_in1[j] = letter;
@@ -1159,6 +1191,7 @@ void start_email(void){
 
 	
 	write_char(letter_in1,40);
+
 	_delay_ms(5000);
 
 	clear_lcd();
@@ -1169,13 +1202,12 @@ void start_email(void){
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,6");
-	_delay_ms(2000);
+	_delay_ms(5000);
 
 	write_line(" DATA");
 	serial_string("DATA");
 	serial_out(0x0d);
 	serial_out(0x0a);	
-	_delay_ms(2000);
 
 	_delay_ms(5000);
 
@@ -1189,7 +1221,7 @@ void start_email(void){
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,19");
-	_delay_ms(2000);
+	_delay_ms(5000);
 
 	write_line(" Subject: PLANT WARNING");
 	serial_string("Subject: PLANT WARNING");
@@ -1205,7 +1237,7 @@ void start_email(void){
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,7");
-	_delay_ms(2000);
+	_delay_ms(5000);
 
 	write_line("Body:");
 	serial_string("Body:");
@@ -1219,7 +1251,6 @@ void start_email(void){
 }
 
 void end_email(void){
-	clear_lcd();
 	
 	char letter_in2[62];
 
@@ -1234,7 +1265,7 @@ void end_email(void){
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,3");
-	_delay_ms(2000);
+	_delay_ms(5000);
 	
 
 	write_line(" . ");
@@ -1249,12 +1280,13 @@ void end_email(void){
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,6");
-	_delay_ms(2000);
+	_delay_ms(5000);
 
 	write_line(" QUIT ");
 	serial_string("QUIT");
 	serial_out(0x0d);
 	serial_out(0x0a);
+	
 	for(j=0;j<30;j++){
 		letter = serial_in();
 		letter_in2[j] = letter;
@@ -1264,7 +1296,7 @@ void end_email(void){
 		letter_in2[j] = letter;
 	}
 	write_char(letter_in2,50);
-	_delay_ms(5000);
+	_delay_ms(8000);
 }
 
 
@@ -2456,11 +2488,11 @@ void warning_state(void){
 		// serial_string_special("Warning: Please Check the following Plants -  ");
 		clear_lcd();
 		write_line("WARNING Check Plants");
-		start_email();
+		//start_email();
 
-		char *increase = "Increase ";
-		char *decrease = "Decrease ";
-		char *at_send_out = "AT+CIPSEND=0,";
+		//char *increase = "Increase ";
+		//char *decrease = "Decrease ";
+		//char *at_send_out = "AT+CIPSEND=0,";
 		
 		for(i=0;i<3;i++){
 			if(i == 0){
@@ -2474,12 +2506,11 @@ void warning_state(void){
 				plant_selected = plant3;
 				// serial_string_special(" plant3 ");
 			}
-
-			clear_lcd();
 			
 
 			if(plant_selected[0] == '1'){
 				if(plant_selected[33] != '0' || plant_selected[34] != '0' || plant_selected[35] != '0'){
+					/*
 					int count = 5;
 					char count_str[10];
 
@@ -2488,6 +2519,8 @@ void warning_state(void){
 							count += 1;
 						}
 					}
+					
+
 					snprintf(count_str, 10, "%d", count);
 
 
@@ -2508,7 +2541,9 @@ void warning_state(void){
 					serial_out(0x0d);
 					serial_out(0x0a);	
 					_delay_ms(5000);
-					
+					*/
+			
+
 					second_line();
 					if(count == 1){
 						third_line();
@@ -2522,31 +2557,41 @@ void warning_state(void){
 					}
 
 					write_line(" ");
+					
+					
 
 					if( plant_selected[33] != '0'){
 						// serial_string_special(" Temperature ");
+						/*
 						write_line(at_send_out);
 						write_line("23");
 						serial_string(at_send_out);
 						serial_string("23");
 						serial_out(0x0d);
 						serial_out(0x0a);	
-						_delay_ms(2000);					
+						_delay_ms(2000);
+						*/
+										
 						if(plant_selected[33] == '1'){
 							write_line("I");
-
+							/*
 							serial_string(increase);
 							serial_string("Temperature\n");
 							serial_out(0x0d);
 							serial_out(0x0a);	
 							_delay_ms(5000);
+							*/
+						
 						}else{
 							write_line("D");
+							/*
 							serial_string(decrease);
 							serial_string("Temperature\n");
 							serial_out(0x0d);
 							serial_out(0x0a);	
 							_delay_ms(5000);
+							*/
+						
 						}
 						write_line("T ");
 
@@ -2554,6 +2599,7 @@ void warning_state(void){
 
 					if( plant_selected[34] != '0'){
 						// serial_string_special(" Moisture ");
+						/*
 						write_line(at_send_out);
 						write_line("20");
 						serial_string(at_send_out);
@@ -2561,26 +2607,35 @@ void warning_state(void){
 						serial_out(0x0d);
 						serial_out(0x0a);	
 						_delay_ms(2000);
+						*/
+					
 						if(plant_selected[34] == '1'){
 							write_line("I");
+							/*
 							serial_string(increase);
 							serial_string("Moisture\n");
 							serial_out(0x0d);
 							serial_out(0x0a);	
 							_delay_ms(5000);
+							*/
+							
 						}else{
 							write_line("D");
+							/*
 							serial_string(decrease);
 							serial_string("Moisture\n");
 							serial_out(0x0d);
 							serial_out(0x0a);	
 							_delay_ms(5000);
+							*/
+						
 						}
 						write_line("M ");
 					}
 
 					if( plant_selected[35] != '0'){
 						// serial_string_special(" Brightness ");
+						/*
 						write_line(at_send_out);
 						write_line("22");
 						serial_string(at_send_out);
@@ -2588,29 +2643,42 @@ void warning_state(void){
 						serial_out(0x0d);
 						serial_out(0x0a);	
 						_delay_ms(2000);
+						*/
+						
 						if(plant_selected[35] == '1'){
 							write_line("I");
-
+							/*
 							serial_string(increase);
 							serial_string("Brightness\n");
 							serial_out(0x0d);
 							serial_out(0x0a);	
 							_delay_ms(5000);
+							*/
+						
 						}else{
 							write_line("D");
+							/*
 							serial_string(decrease);
 							serial_string("Brightness\n");
 							serial_out(0x0d);
 							serial_out(0x0a);	
 							_delay_ms(5000);
+							*/
+						
 						}
 						write_line("B ");
 					}
+
+					
+
+					
 				} 
 				count += 1;
+				
 			}
 		}
-		end_email();
+		//end_email();
+		
 	}else{
 		// serial_string_special("Warning: Max Plants Reached. Please remove a plant to add a new one");
 		clear_lcd();
@@ -2638,6 +2706,179 @@ void warning_state(void){
 }
 
 void send_email_state(void){
+
+
+	int j, i;
+	char *plant_selected;
+	char buff[1];
+	int count = 0;
+
+
+		start_email();
+
+		char *increase = "Increase ";
+		char *decrease = "Decrease ";
+		char *at_send_out = "AT+CIPSEND=0,";
+		
+		for(i=0;i<3;i++){
+			if(i == 0){
+				plant_selected = plant1;
+				// serial_string_special(" plant1 ");
+			}else if(i == 1){
+				plant_selected = plant2;
+				// serial_string_special(" plant2 ");
+				
+			}else{
+				plant_selected = plant3;
+				// serial_string_special(" plant3 ");
+			}
+			
+
+			if(plant_selected[0] == '1'){
+				if(plant_selected[33] != '0' || plant_selected[34] != '0' || plant_selected[35] != '0'){
+					int count = 5;
+					char count_str[10];
+
+					for(j=1;j<10;j++){
+						if(plant_selected[j] != ' '){
+							count += 1;
+						}
+					}
+					snprintf(count_str, 10, "%d", count);
+
+
+					//write_line(at_send_out);
+					//write_line(count_str);
+					serial_string(at_send_out);
+					serial_string(count_str);
+					serial_out(0x0d);
+					serial_out(0x0a);	
+					_delay_ms(2000);
+
+					
+
+					for(j=1;j<10;j++){
+						if(plant_selected[j] != ' '){
+							serial_out(plant_selected[j]);
+						}
+					}
+					serial_string(" - ");
+					serial_out(0x0d);
+					serial_out(0x0a);	
+					_delay_ms(5000);
+
+					/*
+					second_line();
+					if(count == 1){
+						third_line();
+					}else if(count == 2){
+						fourth_line();
+					}
+
+					for(j=1;j<10;j++){
+						buff[0]  = plant_selected[j];
+						write_char(buff, 1);
+					}
+
+					write_line(" ");
+					*/
+					
+					
+
+					if( plant_selected[33] != '0'){
+						// serial_string_special(" Temperature ");
+						//write_line(at_send_out);
+						//write_line("23");
+						serial_string(at_send_out);
+						serial_string("23");
+						serial_out(0x0d);
+						serial_out(0x0a);	
+						_delay_ms(2000);					
+						if(plant_selected[33] == '1'){
+							//write_line("I");
+
+							serial_string(increase);
+							serial_string("Temperature\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
+						}else{
+							//write_line("D");
+							serial_string(decrease);
+							serial_string("Temperature\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
+						}
+						//write_line("T ");
+
+					}
+
+					if( plant_selected[34] != '0'){
+						// serial_string_special(" Moisture ");
+						//write_line(at_send_out);
+						//write_line("20");
+						serial_string(at_send_out);
+						serial_string("20");
+						serial_out(0x0d);
+						serial_out(0x0a);	
+						_delay_ms(2000);
+						if(plant_selected[34] == '1'){
+							//write_line("I");
+							serial_string(increase);
+							serial_string("Moisture\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
+						}else{
+							//write_line("D");
+							serial_string(decrease);
+							serial_string("Moisture\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
+						}
+						//write_line("M ");
+					}
+
+					if( plant_selected[35] != '0'){
+						// serial_string_special(" Brightness ");
+						//write_line(at_send_out);
+						//write_line("22");
+						serial_string(at_send_out);
+						serial_string("22");
+						serial_out(0x0d);
+						serial_out(0x0a);	
+						_delay_ms(2000);
+						if(plant_selected[35] == '1'){
+							//write_line("I");
+
+							serial_string(increase);
+							serial_string("Brightness\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
+						}else{
+							//write_line("D");
+							serial_string(decrease);
+							serial_string("Brightness\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
+						}
+						//write_line("B ");
+					}
+
+					
+
+					
+				} 
+				count += 1;
+				
+			}
+		}
+		end_email();
+
 	state = WARNING_STATE;
 }
 
@@ -2656,8 +2897,8 @@ int main(void){
 	char *subtitle = "       EE459        ";
 
 
-	wifi_init();
 	
+	wifi_init();
 
 	
 	clear_lcd();
@@ -2669,7 +2910,7 @@ int main(void){
 	fourth_line(); 
 	write_line(hashes);
 
-	_delay_ms(5000);
+	_delay_ms(3000);
 
 
 	// READ FLAG FROM EEPROM - is this the first time the device has been powered on since its been programmed 
