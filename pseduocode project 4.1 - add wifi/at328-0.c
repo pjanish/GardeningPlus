@@ -33,6 +33,7 @@
 #define RESULTS_STATE '5'
 #define WARNING_STATE '6'
 #define MONITOR_STATE '7'
+#define SEND_EMAIL_STATE '8'
 
 // moisture sensor defines
 // Find divisors for the UART0 and I2C baud rates
@@ -276,12 +277,6 @@ void i2c_init(uint8_t bdiv)
 // conversion functions 
 
 
-void decimal_to_string( int decimal_val){
-	char other[4];
-	snprintf(other, 4, "%d", decimal_val);
-	// serial_string_special(other);
-}
-
 void celcius_to_farenhiet(int i, int d){
 	float i_result, d_result;
 
@@ -438,7 +433,7 @@ void poll_brightness(void){
     int num_times = 0;
 
 
-	unsigned char other[10];
+	//unsigned char other[10];
 	unsigned char avalid = 0x30;
 	unsigned char buff[4];
 		
@@ -448,15 +443,15 @@ void poll_brightness(void){
 	status = i2c_io(MOISTURE_ADDR, adata, 1, NULL, 0, rdata, 1); //bytes, reading id from device
 
     // checks to make sure the ID is correct 
-    if(rdata[0] == 0x50){
+    //if(rdata[0] == 0x50){
         // serial_string_special("   found");
-    }
+    //}
     status = i2c_io(MOISTURE_ADDR, p_enable, 1, wr_p_enable, 1, check_po, 1); //bytes, powers on device
-    if(check_po[0] == 1){
+    //if(check_po[0] == 1){
         // serial_string_special(" powered on ");
-    }else{
+    //}else{
         // serial_string_special(" powered off ");
-    }
+    //}
 
 
     status = i2c_io(MOISTURE_ADDR, set_gain_a, 1, set_gain_w, 1, NULL, 0); //bytes, sets params
@@ -485,17 +480,15 @@ void poll_brightness(void){
 	x = x<<8;
 	x = x | buff[0];
 	
-	snprintf(other, 10, "%d", x);
+	// snprintf(other, 10, "%d", x);
 	// serial_string_special("\n");
 	// serial_string_special(other);
 
     status = i2c_io(MOISTURE_ADDR, set_gain_a, 1, wr_p_disable, 1, NULL, 0); //bytes, powers off device
-
-	// TO DO: update brightness in EEPROM 
 	
 
 	// serial_string_special(" Brightness: ");
-	snprintf(other, 10, "%d", x);
+	//snprintf(other, 10, "%d", x);
 	// serial_string_special(other);
 	// serial_string_special("\n");
 	brightness_ave = x;
@@ -504,13 +497,12 @@ void poll_brightness(void){
 // algorithm
 void rank_plants(void){
 	int i = 0;
-	unsigned char tester[10];
+	//unsigned char tester[10];
 	char *plant_selected;
 	float score1, score2, score3, score;
 	char rank1, rank2, rank3;
 	unsigned int low_range_t, high_range_t, range_ave;
 
-	// TO DO: cycle through all plants in the eeprom, using fixed value
 	for(i=0;i<3;i++){
 		if(i == 0){
 			plant_selected = plant1;
@@ -529,17 +521,17 @@ void rank_plants(void){
 		low_range_t += (int)(plant_selected[12] - '0');
 
 
-		snprintf(tester, 10,"%d", low_range_t);
+		//snprintf(tester, 10,"%d", low_range_t);
 		// serial_string_special(tester);
-		serial_out(' ');
-		serial_out(plant_selected[11]);
-		serial_out(plant_selected[12]);
+		//serial_out(' ');
+		//serial_out(plant_selected[11]);
+		//serial_out(plant_selected[12]);
 		
 
 		// high range temperature values
 		// serial_string_special("high range: ");
-		serial_out(plant_selected[13] );
-		serial_out(plant_selected[14] );
+		//serial_out(plant_selected[13] );
+		//serial_out(plant_selected[14] );
 		high_range_t = (( unsigned int)(plant_selected[13] - '0')) * 10;
 		high_range_t += (unsigned int)(plant_selected[14] - '0');
 
@@ -579,19 +571,19 @@ void rank_plants(void){
 		low_range_t += (unsigned int)(plant_selected[17] - '0');
 
 
-		snprintf(tester, 10,"%d", low_range_t);
+		//snprintf(tester, 10,"%d", low_range_t);
 		// serial_string_special(tester);
-		serial_out(' ');
-		serial_out(plant_selected[15]);
-		serial_out(plant_selected[16]);
-		serial_out(plant_selected[17]);
+		//serial_out(' ');
+		//serial_out(plant_selected[15]);
+		//serial_out(plant_selected[16]);
+		//serial_out(plant_selected[17]);
 		
 
 		// high range moisture values
 		// serial_string_special(" high range: ");
-		serial_out(plant_selected[18] );
-		serial_out(plant_selected[19] );
-		serial_out(plant_selected[20] );
+		//serial_out(plant_selected[18] );
+		//serial_out(plant_selected[19] );
+		//serial_out(plant_selected[20] );
 		high_range_t = ((unsigned int)(plant_selected[18] - '0')) * 100;
 		high_range_t += ((unsigned int)(plant_selected[19] - '0')) * 10;
 		high_range_t += (unsigned int)(plant_selected[20] - '0');
@@ -634,14 +626,14 @@ void rank_plants(void){
 		low_range_t += (unsigned int)(plant_selected[25] - '0');
 
 
-		snprintf(tester, 10,"%d", low_range_t);
+		//snprintf(tester, 10,"%d", low_range_t);
 		// serial_string_special(tester);
-		serial_out(' ');
-		serial_out(plant_selected[21]);
-		serial_out(plant_selected[22]);
-		serial_out(plant_selected[23]);
-		serial_out(plant_selected[24]);
-		serial_out(plant_selected[25]);
+		//serial_out(' ');
+		//serial_out(plant_selected[21]);
+		//serial_out(plant_selected[22]);
+		//serial_out(plant_selected[23]);
+		//serial_out(plant_selected[24]);
+		//serial_out(plant_selected[25]);
 		
 
 		// high range temperature values
@@ -649,11 +641,11 @@ void rank_plants(void){
 
 		
 
-		serial_out(plant_selected[26] );
-		serial_out(plant_selected[27] );
-		serial_out(plant_selected[28] );
-		serial_out(plant_selected[29] );
-		serial_out(plant_selected[30] );
+		//serial_out(plant_selected[26] );
+		//serial_out(plant_selected[27] );
+		//serial_out(plant_selected[28] );
+		//serial_out(plant_selected[29] );
+		//serial_out(plant_selected[30] );
 
 		high_range_t = ((unsigned int)(plant_selected[26] - '0')) * 10000;
 		high_range_t += ((unsigned int)(plant_selected[27] - '0')) * 1000;
@@ -661,9 +653,9 @@ void rank_plants(void){
 		high_range_t += (unsigned int)(plant_selected[29] - '0') * 10;
 		high_range_t += (unsigned int)(plant_selected[30] - '0');
 
-		snprintf(tester, 10,"%u", high_range_t);
+		//snprintf(tester, 10,"%u", high_range_t);
 		// serial_string_special(tester);
-		serial_out(' ');
+		//serial_out(' ');
 
 		range_ave = (high_range_t + low_range_t) /2;
 		if( low_range_t <=brightness_ave && brightness_ave <= high_range_t ){
@@ -735,54 +727,54 @@ void rank_plants(void){
 	unsigned int int_i_result = score1;                  // Get the integer (678).
 	float fract_i_result = score - int_i_result;      // Get fraction (0.0123).
 	unsigned int int_fract_i_result = trunc(fract_i_result * 10);  // Turn into integer (123).
-	char str[100];
+	//char str[100];
 
-	sprintf (str, "%d.%01d\n", int_i_result, int_fract_i_result);
+	//sprintf (str, "%d.%01d\n", int_i_result, int_fract_i_result);
 	
 
 	// serial_string_special("plant 1: ");
-	for(i=1; i<10; i++){
-		serial_out(plant1[i]);
-	}
-	serial_out(' ');
+	//for(i=1; i<10; i++){
+		//serial_out(plant1[i]);
+	//}
+	//serial_out(' ');
 	// serial_string_special(str);
-	serial_out(' ');
-	serial_out(rank1);
-	serial_out(' ');
+	//serial_out(' ');
+	//serial_out(rank1);
+	//serial_out(' ');
 
 	int_i_result = score2;                  // Get the integer (678).
 	fract_i_result = score - int_i_result;      // Get fraction (0.0123).
 	int_fract_i_result = trunc(fract_i_result * 10);  // Turn into integer (123).
 
-	sprintf (str, "%d.%d\n", int_i_result, int_fract_i_result);
+	//sprintf (str, "%d.%d\n", int_i_result, int_fract_i_result);
 	
 
 	// serial_string_special("plant 2: ");
-	for(i=1; i<10; i++){
-		serial_out(plant2[i]);
-	}
-	serial_out(' ');
+	//for(i=1; i<10; i++){
+		//serial_out(plant2[i]);
+	//}
+	//serial_out(' ');
 	// serial_string_special(str);
-	serial_out(' ');
-	serial_out(rank2);
-	serial_out(' ');
+	//serial_out(' ');
+	//serial_out(rank2);
+	//serial_out(' ');
 
 	int_i_result = score3;                  // Get the integer (678).
 	fract_i_result = score - int_i_result;      // Get fraction (0.0123).
 	int_fract_i_result = trunc(fract_i_result * 10);  // Turn into integer (123).
 
-	sprintf (str, "%d.%01d", int_i_result, int_fract_i_result);
-	serial_out('\n');
+	//sprintf (str, "%d.%01d", int_i_result, int_fract_i_result);
+	//serial_out('\n');
 
 	// serial_string_special("plant 3: ");
-	for(i=1; i<10; i++){
-		serial_out(plant3[i]);
-	}
-	serial_out(' ');
+	//for(i=1; i<10; i++){
+		//serial_out(plant3[i]);
+	//}
+	//serial_out(' ');
 	// serial_string_special(str);
-	serial_out(' ');
-	serial_out(rank3);
-	serial_out(' ');
+	//serial_out(' ');
+	//serial_out(rank3);
+	//serial_out(' ');
 
 	// TO DO: update plant ranks and score in the EEPROM 
 	plant1[31] = rank1;
@@ -891,10 +883,10 @@ void get_ip(void)
 
 
 
-void send_email(void){
-	serial_init(MYUBRR); //change to MYUBBR or 4
+void wifi_init(void){
 	clear_lcd();
 	
+
 	char letter_in1[50];
 	char letter_in2[62];
 	char letter_in3[30];
@@ -902,8 +894,8 @@ void send_email(void){
 
 	char letter;
 
+
 	int j = 0;
-	//letter_in1[0] = 'a';
 	
 
 	
@@ -911,7 +903,7 @@ void send_email(void){
 	PORTD |= (1 << PD3);		
 
 	
-
+	serial_init(MYUBRR); //change to MYUBBR or 4
 	write_line("AT ");
 	serial_string("AT");
 	serial_out(0x0d);
@@ -927,6 +919,7 @@ void send_email(void){
 	find_ok("AT+CWMODE=3");
 	_delay_ms(100);
 
+	
 	write_line(" AT+CWQAP ");	
 	serial_string("AT+CWQAP");
 	serial_out(0x0d);
@@ -942,22 +935,6 @@ void send_email(void){
 	find_ok("AT+RST");
 	_delay_ms(5000);
 
-	/*
-	
-
-	
-
-	
-
-	write_line(" AT+CIPSERVER=1,80 ");
-	serial_string("AT+CIPSERVER=1,80");
-	serial_out(0x0d);
-	serial_out(0x0a);
-	find_ok("AT+CIPSERVER=1,80");
-	_delay_ms(100);
-
-	_delay_ms(2000);
-	*/
 
 	write_line("AT+CWJAP");
 	serial_string("AT+CWJAP=\"USC Guest Wireless\",\"\"");
@@ -971,6 +948,7 @@ void send_email(void){
 	serial_out(0x0d);
 	serial_out(0x0a);	
 
+	
 	for(j=0;j<50;j++){
 		letter = serial_in();
 		letter_in1[j] = letter;
@@ -1112,10 +1090,32 @@ void send_email(void){
 	write_char(letter_in1,50);
 
 	_delay_ms(5000);
+	
+}
+
+
+
+void start_email(void){
+	clear_lcd();
+	
+
+	char letter_in1[50];
+	char letter_in2[62];
+	char letter_in3[30];
+	char letter_in4[22];
+	char *at_send_out = "AT+CIPSEND=0,";
+
+	char letter;
+
+
+	int j = 0;
+	
 
 	clear_lcd();
-	write_line(" AT+CIPSEND=0,29 ");
-	serial_string("AAT+CIPSEND=0,29");
+	write_line(at_send_out);
+	write_line("29 ");
+	serial_string(at_send_out);
+	serial_string("29");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,29");
@@ -1135,8 +1135,10 @@ void send_email(void){
 	_delay_ms(5000);
 
 	clear_lcd();
-	write_line(" AT+CIPSEND=0,27 ");
-	serial_string("AAT+CIPSEND=0,27");
+	write_line(at_send_out);
+	write_line("27");
+	serial_string(at_send_out);
+	serial_string("27");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,27");
@@ -1160,8 +1162,10 @@ void send_email(void){
 	_delay_ms(5000);
 
 	clear_lcd();
-	write_line(" AT+CIPSEND=0,6");
-	serial_string("AT+CIPSEND=0,6");
+	write_line(at_send_out);
+	write_line("6");
+	serial_string(at_send_out);
+	serial_string("6");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,6");
@@ -1175,19 +1179,54 @@ void send_email(void){
 
 	_delay_ms(5000);
 
+	
+
 	clear_lcd();
-	write_line(" AT+CIPSEND=0,19");
-	serial_string("AT+CIPSEND=0,19");
+	write_line(at_send_out);
+	write_line("24");
+	serial_string(at_send_out);
+	serial_string("24");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,19");
 	_delay_ms(2000);
 
-	write_line(" Subject: hi bitch");
-	serial_string("Subject: hi bitch");
+	write_line(" Subject: PLANT WARNING");
+	serial_string("Subject: PLANT WARNING");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	_delay_ms(5000);
+
+	clear_lcd();
+	write_line(at_send_out);
+	write_line("7");
+	serial_string(at_send_out);
+	serial_string("7");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	find_ok("AT+CIPSEND=0,7");
+	_delay_ms(2000);
+
+	write_line("Body:");
+	serial_string("Body:");
+	serial_out(0x0d);
+	serial_out(0x0a);	
+	_delay_ms(5000);
+
+
+	
+	
+}
+
+void end_email(void){
+	clear_lcd();
+	
+	char letter_in2[62];
+
+	char letter;
+
+
+	int j = 0;
 
 	clear_lcd();
 	write_line(" AT+CIPSEND=0,3");
@@ -1196,6 +1235,7 @@ void send_email(void){
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,3");
 	_delay_ms(2000);
+	
 
 	write_line(" . ");
 	serial_string(".");
@@ -1226,6 +1266,8 @@ void send_email(void){
 	write_char(letter_in2,50);
 	_delay_ms(5000);
 }
+
+
 
 // LCD FUNCTIONS
 void clear_lcd(void){
@@ -1312,6 +1354,7 @@ void write_char(char *tester, int len){
 void power_on_state(char first_po_flag, char num_plants_selected){
 	// serial_string_special(" in power on state function ");
 
+	
 	if(first_po_flag == '1'){
 		state = CALIBRATION_STATE;
 	}else{
@@ -1365,10 +1408,8 @@ void select_function_state(void){
 	write_line(" 3. Monitor Plants");
 
 	// rotery encoder to cycle through the options, on screen order will be add new plants, edit plants, then monitor from left to right
-	//TO DO: add rotery encoder selection
 	rotery_state = 0;
 
-	// TO DO: add interrupt to change rotery state
 	uint8_t r_bit, one, two;
 	max_num_options_rotery = 3;
 
@@ -1463,13 +1504,13 @@ void select_function_state(void){
 	}
 
 	// serial_string_special(" Function Chosen = ");
-	if(rotery_state == 0){
+	//if(rotery_state == 0){
 		// serial_string_special(" add new plant ");
-	}else if(rotery_state == 1){
+	//}else if(rotery_state == 1){
 		// serial_string_special(" edit current plants ");
-	}else{
+	//}else{
 		// serial_string_special(" monitor current plants ");
-	}
+	//}
 	
 	// State transitions listed below
 	if(rotery_state ==2){
@@ -1499,9 +1540,9 @@ void results_state(void){
 
 	// algorithm taking in current plant averages if first time callibrated use that data else use long term averages
 	// serial_string_special(" scores 1: ");
-	serial_out(plant1[32]);
+	// serial_out(plant1[32]);
 	rank_plants();
-	serial_out(plant1[32]);
+	// serial_out(plant1[32]);
 
 	// serial_string_special("\n\nPLANT RANKING: 1. ");
 	char *plant_selected1;
@@ -1517,12 +1558,12 @@ void results_state(void){
 	write_line(" ");
 	write_line("1. ");
 	for(j=1;j<10;j++){
-		serial_out(plant_selected1[j]);
+		// serial_out(plant_selected1[j]);
 		buff[0]  = plant_selected1[j];
 		write_char(buff, 1);
 	}
 	// serial_string_special("  ");
-	serial_out(plant_selected1[32]);
+	// serial_out(plant_selected1[32]);
 	// serial_string_special(" / 10");
 
 	
@@ -1546,12 +1587,12 @@ void results_state(void){
 	write_line("2. ");
 
 	for(j=1;j<10;j++){
-		serial_out(plant_selected2[j]);
+		// serial_out(plant_selected2[j]);
 		buff[0]  = plant_selected2[j];
 		write_char(buff, 1);
 	}
 	// serial_string_special("  ");
-	serial_out(plant_selected2[32]);
+	// serial_out(plant_selected2[32]);
 	// serial_string_special(" / 10");
 
 	write_line(" ");
@@ -1575,12 +1616,12 @@ void results_state(void){
 	}
 
 	for(j=1;j<10;j++){
-		serial_out(plant_selected3[j]);
+		// serial_out(plant_selected3[j]);
 		buff[0]  = plant_selected3[j];
 		write_char(buff, 1);
 	}
 	// serial_string_special("  ");
-	serial_out(plant_selected3[32]);
+	// serial_out(plant_selected3[32]);
 	// serial_string_special(" / 10");
 
 	write_line(" ");
@@ -1643,9 +1684,9 @@ void results_state(void){
 		write_line("#");
 	}
 
-	for(j=1;j<10;j++){
-		serial_out(plant_selected[j]);
-	}
+	//for(j=1;j<10;j++){
+		//serial_out(plant_selected[j]);
+	//}
 	
 	while(select_plant_flag == '0'){
 		if((PINB & (1 << PINB0)) == 0 && !debounce_button){
@@ -1684,18 +1725,18 @@ void results_state(void){
 				write_line("#");
 			}
 
-			for(j=1;j<10;j++){
-				serial_out(plant_selected[j]);
-			}
+			//for(j=1;j<10;j++){
+				//serial_out(plant_selected[j]);
+			//}
 			changed = '0';
 		}
 	}
 
 	// serial_string_special(" Plant Chosen = ");
-	for(j=1;j<10;j++){
-		serial_out(plant_selected[j]);
-	}
-	// TO DO: if plant is selected then update the EEPROM, if plant is selected update the select plant flag
+	//for(j=1;j<10;j++){
+		//serial_out(plant_selected[j]);
+	//}
+	
 	if(plant_selected == plant1){
 		display_selected_plant(1);
 		plant1[0] = '1';
@@ -1897,17 +1938,17 @@ void edit_plants_state(void){
 	char *back = "\0\0\0\0\0\0back";
 	int j = 0;
 	int count = 1;
-	char print_count[5];
+	//char print_count[5];
 	char flag_second = '0';
 
 	// serial_string_special(" OPTIONS TO REMOVE ");
 	if(plant1[0] == '1'){
-		snprintf(print_count,5,"%d",count);
+		// snprintf(print_count,5,"%d",count);
 		// serial_string_special(" ");
 		// serial_string_special(print_count);
-		for(j=1;j<10;j++){
-				serial_out(plant1[j]);
-		}
+		//for(j=1;j<10;j++){
+				// serial_out(plant1[j]);
+		// }
 		count += 1;;
 		write_line(" Remove ");
 		for(j=1;j<10;j++){
@@ -1918,12 +1959,12 @@ void edit_plants_state(void){
 	// serial_string_special(" ");
 
 	if(plant2[0] == '1'){
-		snprintf(print_count,5,"%d",count);
+		// snprintf(print_count,5,"%d",count);
 		// serial_string_special(" ");
 		// serial_string_special(print_count);
-		for(j=1;j<10;j++){
-				serial_out(plant2[j]);
-		}
+		// for(j=1;j<10;j++){
+				// serial_out(plant2[j]);
+		//}
 		if(count == 2){
 			second_line();
 		}
@@ -1938,12 +1979,12 @@ void edit_plants_state(void){
 	// serial_string_special(" ");
 
 	if(plant3[0] == '1'){
-		snprintf(print_count,5,"%d",count);
+		//snprintf(print_count,5,"%d",count);
 		// serial_string_special(" ");
 		// serial_string_special(print_count);
-		for(j=1;j<10;j++){
-				serial_out(plant3[j]);
-		}
+		//for(j=1;j<10;j++){
+				// serial_out(plant3[j]);
+		//}
 		if(count == 2){
 			second_line();
 		}else if(count == 3){
@@ -1966,12 +2007,12 @@ void edit_plants_state(void){
 		fourth_line();
 	}
 	write_line(" Back ");
-	for(j=1;j<10;j++){
-			serial_out(back[j]);
-	}
+	//for(j=1;j<10;j++){
+			//serial_out(back[j]);
+	//}
 
 	// serial_string_special("COUNT: ");
-	snprintf(print_count,5,"%d",count);
+	//snprintf(print_count,5,"%d",count);
 	// serial_string_special(print_count);
 
 
@@ -1999,18 +2040,18 @@ void edit_plants_state(void){
 		option_selected = plant3;
 	}
 
-	for(j=1;j<10;j++){
-		serial_out(option_selected[j]);
-	}
+	//for(j=1;j<10;j++){
+		//serial_out(option_selected[j]);
+	//}
 
 	// serial_string_special("max_num_options_rotery preset: ");
-	snprintf(print_count,5,"%d",max_num_options_rotery);
+	//snprintf(print_count,5,"%d",max_num_options_rotery);
 	// serial_string_special(print_count);
 
 	max_num_options_rotery = count; // the number of options is equal to the number of plants that are available plus one for back
 	
 	// serial_string_special("max_num_options_rotery postset: ");
-	snprintf(print_count,5,"%d",max_num_options_rotery);
+	//snprintf(print_count,5,"%d",max_num_options_rotery);
 	// serial_string_special(print_count);
 
 	if(rotery_state == 0){
@@ -2096,9 +2137,9 @@ void edit_plants_state(void){
 			debounce_button = 1;
 			// TO DO: if plant is selected then update the EEPROM, if plant is selected update the select plant flag
 			// serial_string_special("  ");
-			for(j=1;j<10;j++){
-				serial_out(option_selected[j]);
-			}
+			//for(j=1;j<10;j++){
+				//serial_out(option_selected[j]);
+			//}
 			if(option_selected == back){
 				select_back_flag = '1';
 			}else if(option_selected == plant1){
@@ -2126,13 +2167,13 @@ void edit_plants_state(void){
 			max_num_options_rotery = count; //now cycle through less options
 
 			// serial_string_special("max_num_options_rotery update: ");
-			snprintf(print_count,5,"%d",max_num_options_rotery);
+			//snprintf(print_count,5,"%d",max_num_options_rotery);
 			// serial_string_special(print_count);
 
 			// serial_string_special(" Option Chosen = ");
-			for(j=1;j<10;j++){
-				serial_out(option_selected[j]);
-			}
+			//for(j=1;j<10;j++){
+				//serial_out(option_selected[j]);
+			//}
 
 			if(plant1[0] == '0' & plant2[0] == '0' & plant3[0] == '0'){
 				removed_all_plants_flag = '1';
@@ -2142,12 +2183,12 @@ void edit_plants_state(void){
 				clear_lcd();
 				if(plant1[0] == '1'){
 					flag_second = '1';
-					snprintf(print_count,5,"%d",count);
+					//snprintf(print_count,5,"%d",count);
 					// serial_string_special(" ");
 					// serial_string_special(print_count);
-					for(j=1;j<10;j++){
-							serial_out(plant1[j]);
-					}
+					//for(j=1;j<10;j++){
+							//serial_out(plant1[j]);
+					//}
 					first_line();
 					write_line(" Remove ");
 					for(j=1;j<10;j++){
@@ -2158,12 +2199,12 @@ void edit_plants_state(void){
 				// serial_string_special(" ");
 
 				if(plant2[0] == '1'){
-					snprintf(print_count,5,"%d",count);
+					//snprintf(print_count,5,"%d",count);
 					// serial_string_special(" ");
 					// serial_string_special(print_count);
-					for(j=1;j<10;j++){
-							serial_out(plant2[j]);
-					}
+					//for(j=1;j<10;j++){
+							//serial_out(plant2[j]);
+					//}
 					if(count == 3 && flag_second == '1'){
 						second_line();
 					}
@@ -2177,12 +2218,12 @@ void edit_plants_state(void){
 				// serial_string_special(" ");
 
 				if(plant3[0] == '1'){
-					snprintf(print_count,5,"%d",count);
+					//snprintf(print_count,5,"%d",count);
 					// serial_string_special(" ");
 					// serial_string_special(print_count);
-					for(j=1;j<10;j++){
-							serial_out(plant3[j]);
-					}
+					//for(j=1;j<10;j++){
+							////serial_out(plant3[j]);
+					//}
 					if(count == 3){
 						second_line();
 					}else if(count == 4){
@@ -2204,9 +2245,9 @@ void edit_plants_state(void){
 					fourth_line();
 				}
 				write_line(" Back ");
-				for(j=1;j<10;j++){
-						serial_out(back[j]);
-				}
+				//for(j=1;j<10;j++){
+						//serial_out(back[j]);
+				//}
 				first_line();
 			}
 			
@@ -2293,9 +2334,9 @@ void edit_plants_state(void){
 				write_line(" ");
 			}
 
-			for(j=1;j<10;j++){
-				serial_out(option_selected[j]);
-			}
+			//for(j=1;j<10;j++){
+				//serial_out(option_selected[j]);
+			//}
 			changed = '0';
 		}
 	}
@@ -2335,10 +2376,10 @@ void monitor_state(void){
 	int seconds_count = 0;
 
 	// serial_string_special(" back ");
-	serial_out(back);
+	//serial_out(back);
 
 	// serial_string_special(" warning flag ");
-	serial_out(warning_flag);
+	//serial_out(warning_flag);
 
 	// if there is something that brings plant outside of ranges or needs watering turn on diode
 	while(back == '0' && warning_flag == '0'){
@@ -2395,7 +2436,7 @@ void monitor_state(void){
 	// prioritize warning alert over back button
 
 	if(warning_flag == '1'){
-		state = WARNING_STATE;
+		state = SEND_EMAIL_STATE;
 	} else if(back == '1'){
 		state = SELECT_FUNCTION_STATE;
 	}
@@ -2415,6 +2456,11 @@ void warning_state(void){
 		// serial_string_special("Warning: Please Check the following Plants -  ");
 		clear_lcd();
 		write_line("WARNING Check Plants");
+		start_email();
+
+		char *increase = "Increase ";
+		char *decrease = "Decrease ";
+		char *at_send_out = "AT+CIPSEND=0,";
 		
 		for(i=0;i<3;i++){
 			if(i == 0){
@@ -2429,11 +2475,40 @@ void warning_state(void){
 				// serial_string_special(" plant3 ");
 			}
 
+			clear_lcd();
+			
+
 			if(plant_selected[0] == '1'){
 				if(plant_selected[33] != '0' || plant_selected[34] != '0' || plant_selected[35] != '0'){
+					int count = 5;
+					char count_str[10];
+
 					for(j=1;j<10;j++){
-						serial_out(plant_selected[j]);
+						if(plant_selected[j] != ' '){
+							count += 1;
+						}
 					}
+					snprintf(count_str, 10, "%d", count);
+
+
+					write_line(at_send_out);
+					write_line(count_str);
+					serial_string(at_send_out);
+					serial_string(count_str);
+					serial_out(0x0d);
+					serial_out(0x0a);	
+					_delay_ms(2000);
+
+					for(j=1;j<10;j++){
+						if(plant_selected[j] != ' '){
+							serial_out(plant_selected[j]);
+						}
+					}
+					serial_string(" - ");
+					serial_out(0x0d);
+					serial_out(0x0a);	
+					_delay_ms(5000);
+					
 					second_line();
 					if(count == 1){
 						third_line();
@@ -2450,38 +2525,92 @@ void warning_state(void){
 
 					if( plant_selected[33] != '0'){
 						// serial_string_special(" Temperature ");
+						write_line(at_send_out);
+						write_line("23");
+						serial_string(at_send_out);
+						serial_string("23");
+						serial_out(0x0d);
+						serial_out(0x0a);	
+						_delay_ms(2000);					
 						if(plant_selected[33] == '1'){
 							write_line("I");
+
+							serial_string(increase);
+							serial_string("Temperature\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
 						}else{
 							write_line("D");
+							serial_string(decrease);
+							serial_string("Temperature\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
 						}
 						write_line("T ");
+
 					}
 
 					if( plant_selected[34] != '0'){
 						// serial_string_special(" Moisture ");
+						write_line(at_send_out);
+						write_line("20");
+						serial_string(at_send_out);
+						serial_string("20");
+						serial_out(0x0d);
+						serial_out(0x0a);	
+						_delay_ms(2000);
 						if(plant_selected[34] == '1'){
 							write_line("I");
+							serial_string(increase);
+							serial_string("Moisture\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
 						}else{
 							write_line("D");
+							serial_string(decrease);
+							serial_string("Moisture\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
 						}
 						write_line("M ");
 					}
 
 					if( plant_selected[35] != '0'){
 						// serial_string_special(" Brightness ");
+						write_line(at_send_out);
+						write_line("22");
+						serial_string(at_send_out);
+						serial_string("22");
+						serial_out(0x0d);
+						serial_out(0x0a);	
+						_delay_ms(2000);
 						if(plant_selected[35] == '1'){
 							write_line("I");
+
+							serial_string(increase);
+							serial_string("Brightness\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
 						}else{
 							write_line("D");
+							serial_string(decrease);
+							serial_string("Brightness\n");
+							serial_out(0x0d);
+							serial_out(0x0a);	
+							_delay_ms(5000);
 						}
 						write_line("B ");
 					}
 				} 
 				count += 1;
 			}
-			send_email();
 		}
+		end_email();
 	}else{
 		// serial_string_special("Warning: Max Plants Reached. Please remove a plant to add a new one");
 		clear_lcd();
@@ -2502,19 +2631,23 @@ void warning_state(void){
 		}
 	}
 	flag_try_adding_new_plant = '0';
-	// TO DO: LCD display to display warning message and an ok button
 
 	// state transitions listed below
 	// if okay button pressed go back to the select function state
 	state = SELECT_FUNCTION_STATE;
 }
 
+void send_email_state(void){
+	state = WARNING_STATE;
+}
+
 int main(void){
 
 	// for testing purposes only
-	// TO DO: end of project remove
-	//serial_init(47);
+
 	int i = 0;
+
+	
 
 	// TO DO: LCD Display Boot Up Screen with Name for a set amount of time 
 	// LCD SCREEN 1
@@ -2522,6 +2655,8 @@ int main(void){
 	char *title = "     GARDENING+     ";
 	char *subtitle = "       EE459        ";
 
+
+	wifi_init();
 	
 
 	
@@ -2553,7 +2688,7 @@ int main(void){
 	
 	//state is initially set to the POWER_ON state 
 	state = POWER_ON_STATE;
-
+	
 
 	while(1){
 		switch(state){
@@ -2578,7 +2713,11 @@ int main(void){
 			case MONITOR_STATE:
 				monitor_state();
 				break;
+			case SEND_EMAIL_STATE:
+				send_email_state();
+				break;
 			default:
+				break;
 				// serial_string_special(" not in state ");
 		}
 	}
