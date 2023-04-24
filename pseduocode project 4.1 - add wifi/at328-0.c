@@ -809,12 +809,13 @@ void find_ok(char *at_command){
 		}
 
 	}
-
+	_delay_ms(40);
+	/*
 	if(flag_ok){
 		write_line("OK");
 	}else{
 		write_line("NOT OK");
-	}
+	}*/
 
 
 
@@ -1140,9 +1141,11 @@ void start_email(void){
 	int j = 0;
 	
 
-	clear_lcd();
-	write_line(at_send_out);
-	write_line("29 ");
+	//clear_lcd();
+	_delay_ms(15);
+	write_line_spaces(at_send_out);
+	write_line_spaces("29 ");
+
 	serial_string(at_send_out);
 	serial_string("29");
 	serial_out(0x0d);
@@ -1150,24 +1153,26 @@ void start_email(void){
 	find_ok("AT+CIPSEND=0,29");
 	_delay_ms(5000);
 	
-	write_line(" send from ");
+	write_line_spaces(" send from ");
 	serial_string("MAIL FROM:<pjanish@usc.edu>");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 
 	for(j=0;j<20;j++){
 		letter = serial_in();
-		letter_in1[j] = letter;
+		letter_in1[j] = " ";
 	}
 	
-	write_char(letter_in1,20);
+	_delay_ms(400);
+	write_space(letter_in1,20);
 
 
 	_delay_ms(5000);
 
-	clear_lcd();
-	write_line(at_send_out);
-	write_line("27");
+	//clear_lcd();
+	_delay_ms(15);
+	write_line_spaces(at_send_out);
+	write_line_spaces("27");
 	serial_string(at_send_out);
 	serial_string("27");
 	serial_out(0x0d);
@@ -1175,7 +1180,7 @@ void start_email(void){
 	find_ok("AT+CIPSEND=0,27");
 	_delay_ms(5000);
 	
-	write_line(" send to ");
+	write_line_spaces(" send to ");
 	serial_string("RCPT TO:<pjanish@usc.edu>");
 	serial_out(0x0d);
 	serial_out(0x0a);
@@ -1190,13 +1195,14 @@ void start_email(void){
 	}
 
 	
-	write_char(letter_in1,40);
+	write_space(letter_in1,40);
 
 	_delay_ms(5000);
 
-	clear_lcd();
-	write_line(at_send_out);
-	write_line("6");
+	//clear_lcd();
+	//write_line(at_send_out);
+	//write_line("6");
+	_delay_ms(280);
 	serial_string(at_send_out);
 	serial_string("6");
 	serial_out(0x0d);
@@ -1204,7 +1210,8 @@ void start_email(void){
 	find_ok("AT+CIPSEND=0,6");
 	_delay_ms(5000);
 
-	write_line(" DATA");
+	//write_line(" DATA");
+	_delay_ms(80);
 	serial_string("DATA");
 	serial_out(0x0d);
 	serial_out(0x0a);	
@@ -1213,9 +1220,10 @@ void start_email(void){
 
 	
 
-	clear_lcd();
-	write_line(at_send_out);
-	write_line("24");
+	//clear_lcd();
+	_delay_ms(15);
+	write_line_spaces(at_send_out);
+	write_line_spaces("24");
 	serial_string(at_send_out);
 	serial_string("24");
 	serial_out(0x0d);
@@ -1223,15 +1231,16 @@ void start_email(void){
 	find_ok("AT+CIPSEND=0,19");
 	_delay_ms(5000);
 
-	write_line(" Subject: PLANT WARNING");
+	write_line_spaces(" Subject: PLANT WARNING");
 	serial_string("Subject: PLANT WARNING");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	_delay_ms(5000);
 
-	clear_lcd();
-	write_line(at_send_out);
-	write_line("7");
+	//clear_lcd();
+	_delay_ms(15);
+	write_line_spaces(at_send_out);
+	write_line_spaces("7");
 	serial_string(at_send_out);
 	serial_string("7");
 	serial_out(0x0d);
@@ -1239,7 +1248,7 @@ void start_email(void){
 	find_ok("AT+CIPSEND=0,7");
 	_delay_ms(5000);
 
-	write_line("Body:");
+	write_line_spaces("Body:");
 	serial_string("Body:");
 	serial_out(0x0d);
 	serial_out(0x0a);	
@@ -1259,8 +1268,9 @@ void end_email(void){
 
 	int j = 0;
 
-	clear_lcd();
-	write_line(" AT+CIPSEND=0,3");
+	//clear_lcd();
+	_delay_ms(15);
+	write_line_spaces(" AT+CIPSEND=0,3");
 	serial_string("AT+CIPSEND=0,3");
 	serial_out(0x0d);
 	serial_out(0x0a);	
@@ -1268,21 +1278,22 @@ void end_email(void){
 	_delay_ms(5000);
 	
 
-	write_line(" . ");
+	write_line_spaces(" . ");
 	serial_string(".");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	_delay_ms(5000);
 
-	clear_lcd();
-	write_line(" AT+CIPSEND=0,6");
+	//clear_lcd();
+	_delay_ms(15);
+	write_line_spaces(" AT+CIPSEND=0,6");
 	serial_string("AT+CIPSEND=0,6");
 	serial_out(0x0d);
 	serial_out(0x0a);	
 	find_ok("AT+CIPSEND=0,6");
 	_delay_ms(5000);
 
-	write_line(" QUIT ");
+	write_line_spaces(" QUIT ");
 	serial_string("QUIT");
 	serial_out(0x0d);
 	serial_out(0x0a);
@@ -1295,7 +1306,7 @@ void end_email(void){
 		letter = serial_in();
 		letter_in2[j] = letter;
 	}
-	write_char(letter_in2,50);
+	write_space(letter_in2,50);
 	_delay_ms(8000);
 }
 
@@ -1372,6 +1383,16 @@ void write_line(char *tester){
 	_delay_ms(10);
 }
 
+void write_line_spaces(char *tester){
+	uint8_t status;
+	char *spaces = "                                                    ";
+
+	first_line();
+	status = i2c_io(LCD_ADDR, NULL, 0, spaces, strlen(tester), NULL, 0); 
+
+	_delay_ms(10);
+}
+
 
 void write_char(char *tester, int len){
 	uint8_t status;
@@ -1381,6 +1402,14 @@ void write_char(char *tester, int len){
 	_delay_ms(10);
 }
 
+void write_space(char *tester, int len){
+	uint8_t status;
+	char *spaces = "                                          ";
+
+	status = i2c_io(LCD_ADDR, NULL, 0, spaces, len, NULL, 0); 
+
+	_delay_ms(10);
+}
 
 // state functions
 void power_on_state(char first_po_flag, char num_plants_selected){
